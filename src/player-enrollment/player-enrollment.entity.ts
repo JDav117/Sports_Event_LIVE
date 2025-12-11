@@ -29,13 +29,13 @@ export class PlayerEnrollment {
   playerEmail: string;
 
   @Column({
-    type: 'text',
+    type: 'enum',
     enum: EnrollmentType,
   })
   enrollmentType: EnrollmentType;
 
   @Column({
-    type: 'text',
+    type: 'enum',
     enum: EnrollmentStatus,
     default: EnrollmentStatus.PENDING,
   })

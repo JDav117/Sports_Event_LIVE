@@ -35,13 +35,13 @@ export class Event {
   location: string;
 
   @Column({
-    type: 'text',
+    type: 'enum',
     enum: EventType,
   })
   type: EventType;
 
   @Column({
-    type: 'text',
+    type: 'enum',
     enum: EventStatus,
     default: EventStatus.SCHEDULED,
   })

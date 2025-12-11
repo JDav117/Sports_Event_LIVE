@@ -29,7 +29,7 @@ export class Team {
   name: string;
 
   @Column({
-    type: 'text',
+    type: 'enum',
     enum: Category,
   })
   category: Category;
@@ -41,7 +41,7 @@ export class Team {
   maxPlayers: number;
 
   @Column({
-    type: 'text',
+    type: 'enum',
     enum: SportType,
   })
   sportType: SportType;

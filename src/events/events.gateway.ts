@@ -194,7 +194,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleTimeoutRequest(
     @MessageBody() data: { eventId: string; playerId: string; playerName: string; reason?: string },
     @ConnectedSocket() client: Socket,
-  ) {ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, reason } = data;
 
