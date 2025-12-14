@@ -6,7 +6,6 @@ import { TeamsModule } from './teams/teams.module';
 import { EventsModule } from './events/events.module';
 import { PlayerEnrollmentModule } from './player-enrollment/player-enrollment.module';
 import { AttendanceModule } from './attendance/attendance.module';
-import { EventsGateway } from './events/events.gateway';
 import { SportContextMiddleware } from './common/middlewares/sport-context.middleware';
 import { AuditMiddleware } from './common/middlewares/audit.middleware';
 
@@ -47,7 +46,7 @@ import { AuditMiddleware } from './common/middlewares/audit.middleware';
     PlayerEnrollmentModule,
     AttendanceModule,
   ],
-  providers: [EventsGateway],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

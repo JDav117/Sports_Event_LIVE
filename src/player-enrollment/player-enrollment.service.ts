@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, forwardRef } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PlayerEnrollment, EnrollmentStatus, EnrollmentType } from './player-enrollment.entity';
@@ -13,6 +13,7 @@ export class PlayerEnrollmentService {
     @InjectRepository(PlayerEnrollment)
     private readonly enrollmentRepository: Repository<PlayerEnrollment>,
     private readonly teamsService: TeamsService,
+    @Inject(forwardRef(() => EventsService))
     private readonly eventsService: EventsService,
   ) {}
 

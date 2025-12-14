@@ -10,6 +10,8 @@ import {
 import { Server, Socket } from 'socket.io';
 import { UseGuards } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { PlayerEnrollmentService } from '../player-enrollment/player-enrollment.service';
+import { AuditService } from '../common/services/audit.service';
 
 interface PlayerConnection {
   socketId: string;
@@ -29,6 +31,11 @@ interface PlayerConnection {
   },
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    private readonly enrollmentService: PlayerEnrollmentService,
+    private readonly auditService: AuditService,
+  ) {}
+
   @WebSocketServer()
   server: Server;
 
@@ -63,11 +70,29 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   @SubscribeMessage('join_event')
-  handleJoinEvent(
+  async handleJoinEvent(
     @MessageBody() data: { eventId: string; playerId: string; playerName: string },
     @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName } = data;
+
+    // Verificar inscripción aprobada antes de permitir el acceso
+    const isEnrolled = await this.enrollmentService.isPlayerEnrolledInEvent(playerId, eventId);
+
+    if (!isEnrolled) {
+      const reason = `Jugador ${playerId} intentó unirse a evento ${eventId} sin inscripción aprobada`;
+      this.auditService.logWs('UNAUTHORIZED_EVENT_ACCESS', { playerId, eventId, reason });
+      client.emit('event.join_denied', {
+        eventId,
+        playerId,
+        playerName,
+        reason: 'No estás inscrito en este evento o tu inscripción no está aprobada',
+      });
+      return {
+        success: false,
+        message: 'No estás inscrito en este evento o tu inscripción no está aprobada',
+      };
+    }
 
     // Unir al cliente a la sala del evento
     client.join(eventId);
@@ -77,7 +102,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       this.eventRooms.set(eventId, []);
     }
 
-    const players = this.eventRooms.get(eventId);
+    const players = this.eventRooms.get(eventId)!;
     const existingPlayer = players.find(p => p.playerId === playerId);
 
     if (!existingPlayer) {
@@ -119,7 +144,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.leave(eventId);
 
     if (this.eventRooms.has(eventId)) {
-      const players = this.eventRooms.get(eventId);
+      const players = this.eventRooms.get(eventId)!;
       const playerIndex = players.findIndex(p => p.playerId === playerId);
 
       if (playerIndex !== -1) {
@@ -188,6 +213,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     return { success: true, message: 'Solicitud de cambio enviada' };
   }
+
   @UseGuards(ThrottlerGuard)
   @SubscribeMessage('request_timeout')
   @Throttle({ chat: { ttl: 10000, limit: 3 } })

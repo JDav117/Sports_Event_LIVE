@@ -1,0 +1,11 @@
+<script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+<script>
+  const socket = io('http://localhost:3000');
+  socket.on('connect', () => {
+    socket.emit('join_event', { eventId: 'EVENT_ID', playerId: 'PLAYER_ID', playerName: 'Jugador demo' });
+  });
+  socket.on('event.started', console.log);
+  socket.on('event.ended', console.log);
+  socket.on('event.chat_message', console.log);
+  socket.on('join_event', console.log);
+</script>

@@ -1,0 +1,100 @@
+import {
+  WebSocketGateway,
+  WebSocketServer,
+  SubscribeMessage,
+  MessageBody,
+  ConnectedSocket,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
+import { UseGuards } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { PlayerEnrollmentService } from '../player-enrollment/player-enrollment.service';
+
+interface PlayerConnection {
+  socketId: string;
+  playerId: string;
+  playerName: string;
+  eventId: string;
+  joinedAt: Date;
+}
+
+@WebSocketGateway({
+  cors: {
+    origin: [
+      process.env.CORS_ORIGIN_PLAYERS || 'http://localhost:4200',
+      process.env.CORS_ORIGIN_COACHES || 'http://localhost:4201',
+    ],
+    credentials: true,
+  },
+})
+export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(
+    private readonly enrollmentService: PlayerEnrollmentService,
+  ) {}
+
+  @WebSocketServer()
+  server: Server;
+
+  // Mapa de conexiones: eventId -> array de PlayerConnection
+  private eventRooms: Map<string, PlayerConnection[]> = new Map();
+
+  handleConnection(client: Socket) {
+    console.log(`[WS] Cliente conectado: ${client.id}`);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log(`[WS] Cliente desconectado: ${client.id}`);
+    
+    // Remover jugador de todas las salas
+    this.eventRooms.forEach((players, eventId) => {
+      const playerIndex = players.findIndex(p => p.socketId === client.id);
+      if (playerIndex !== -1) {
+        const player = players[playerIndex];
+        players.splice(playerIndex, 1);
+
+        // Notificar a la sala
+        this.server.to(eventId).emit('player.left_event', {
+          eventId,
+          playerId: player.playerId,
+          playerName: player.playerName,
+          timestamp: new Date(),
+        });
+
+        this.updateConnectedPlayers(eventId);
+      }
+    });
+  }
+
+  @SubscribeMessage('join_event')
+  async handleJoinEvent(
+    @MessageBody() data: { eventId: string; playerId: string; playerName: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const { eventId, playerId, playerName } = data;
+
+    // Verificar inscripción aprobada antes de permitir el acceso
+    const enrollment = await this.enrollmentRepository.findOne({
+      where: {
+        playerId,
+        eventId,
+        status: EnrollmentStatus.APPROVED,
+      },
+    });
+
+    if (!enrollment) {
+      const reason = `Jugador ${playerId} intentó unirse a evento ${eventId} sin inscripción aprobada`;
+      console.warn(`[AUDIT][WS] ${reason}`);
+      return {
+        success: false,
+        message: 'No estás inscrito en este evento o tu inscripción no está aprobada',
+      };
+    }
+
+    // Unir al cliente a la sala del evento
+    client.join(eventId);
+
+    // Registrar conexión
+    if (!this.eventRooms.has(eventId)) {
+      this.eventRooms.set(eventId, []);

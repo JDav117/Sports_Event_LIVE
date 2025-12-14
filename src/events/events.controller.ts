@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { EventsService } from './events.service';
@@ -14,6 +15,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { UpdateEventStatusDto } from './dto/update-event-status.dto';
 import { Event, EventType, EventStatus } from './event.entity';
+import { CoachGuard } from '../common/guards/coach.guard';
 
 @ApiTags('Events')
 @Controller('events')
@@ -75,6 +77,7 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Estado actualizado', type: Event })
   @ApiResponse({ status: 400, description: 'No se puede iniciar antes del margen de tiempo' })
   @ApiResponse({ status: 403, description: 'Solo el coach puede cambiar a live/finished' })
+  @UseGuards(CoachGuard)
   updateStatus(@Param('id') id: string, @Body() updateStatusDto: UpdateEventStatusDto) {
     return this.eventsService.updateStatus(id, updateStatusDto);
   }
