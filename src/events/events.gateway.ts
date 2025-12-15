@@ -12,6 +12,7 @@ import { UseGuards } from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { PlayerEnrollmentService } from '../player-enrollment/player-enrollment.service';
 import { AuditService } from '../common/services/audit.service';
+import { EventStatus } from './event.entity';
 
 interface PlayerConnection {
   socketId: string;
@@ -41,6 +42,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // Mapa de conexiones: eventId -> array de PlayerConnection
   private eventRooms: Map<string, PlayerConnection[]> = new Map();
+  private eventStatusCache: Map<string, EventStatus> = new Map();
 
   handleConnection(client: Socket) {
     console.log(`[WS] Cliente conectado: ${client.id}`);
@@ -76,22 +78,26 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const { eventId, playerId, playerName } = data;
 
-    // Verificar inscripción aprobada antes de permitir el acceso
+    // Verificar inscripcion aprobada antes de permitir el acceso
     const isEnrolled = await this.enrollmentService.isPlayerEnrolledInEvent(playerId, eventId);
 
     if (!isEnrolled) {
       const reason = `Jugador ${playerId} intentó unirse a evento ${eventId} sin inscripción aprobada`;
-      this.auditService.logWs('UNAUTHORIZED_EVENT_ACCESS', { playerId, eventId, reason });
-      client.emit('event.join_denied', {
+      await this.auditService.logWs('UNAUTHORIZED_EVENT_ACCESS', {
+        playerId,
+        playerName,
+        eventId,
+        socketId: client.id,
+        ip: client.handshake.address,
+        reason,
+      });
+
+      return this.emitJoinDenied(client, {
         eventId,
         playerId,
         playerName,
-        reason: 'No estás inscrito en este evento o tu inscripción no está aprobada',
+        reason: 'Not enrolled',
       });
-      return {
-        success: false,
-        message: 'No estás inscrito en este evento o tu inscripción no está aprobada',
-      };
     }
 
     // Unir al cliente a la sala del evento
@@ -240,6 +246,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   // Métodos auxiliares para notificar cambios de estado del evento
   notifyEventStarted(eventId: string) {
+    if (this.hasSameStatus(eventId, EventStatus.LIVE)) {
+      return;
+    }
+
+    this.eventStatusCache.set(eventId, EventStatus.LIVE);
     this.server.to(eventId).emit('event.started', {
       eventId,
       timestamp: new Date(),
@@ -247,6 +258,11 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   notifyEventEnded(eventId: string) {
+    if (this.hasSameStatus(eventId, EventStatus.FINISHED)) {
+      return;
+    }
+
+    this.eventStatusCache.set(eventId, EventStatus.FINISHED);
     this.server.to(eventId).emit('event.ended', {
       eventId,
       timestamp: new Date(),
@@ -281,5 +297,27 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
     
     return 0;
+  }
+
+  private emitJoinDenied(
+    client: Socket,
+    payload: { eventId: string; playerId: string; playerName: string; reason: string },
+  ) {
+    const response = {
+      success: false,
+      code: 'UNAUTHORIZED_EVENT_ACCESS',
+      message: payload.reason,
+      eventId: payload.eventId,
+      playerId: payload.playerId,
+      playerName: payload.playerName,
+      timestamp: new Date(),
+    };
+
+    client.emit('event.join_denied', response);
+    return response;
+  }
+
+  private hasSameStatus(eventId: string, status: EventStatus): boolean {
+    return this.eventStatusCache.get(eventId) === status;
   }
 }

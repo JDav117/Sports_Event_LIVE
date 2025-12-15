@@ -10,10 +10,11 @@ import { CoachGuard } from '../common/guards/coach.guard';
 import { PlayerEnrollment } from '../player-enrollment/player-enrollment.entity';
 import { PlayerEnrollmentModule } from '../player-enrollment/player-enrollment.module';
 import { AuditService } from '../common/services/audit.service';
+import { AuditLog } from '../common/entities/audit-log.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Event, PlayerEnrollment]),
+    TypeOrmModule.forFeature([Event, PlayerEnrollment, AuditLog]),
     forwardRef(() => PlayerEnrollmentModule),
   ],
   controllers: [EventsController],

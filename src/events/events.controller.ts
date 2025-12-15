@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiQuery, ApiParam, ApiHeader } from '@nestjs/swagger';
 import { EventsService } from './events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -77,6 +77,37 @@ export class EventsController {
   @ApiResponse({ status: 200, description: 'Estado actualizado', type: Event })
   @ApiResponse({ status: 400, description: 'No se puede iniciar antes del margen de tiempo' })
   @ApiResponse({ status: 403, description: 'Solo el coach puede cambiar a live/finished' })
+  @ApiHeader({
+    name: 'X-Coach-Id',
+    description: 'Identificador del coach que solicita el cambio de estado',
+    required: true,
+    example: 'coach-123',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado actualizado correctamente',
+    schema: {
+      example: {
+        id: 'event-uuid',
+        status: 'live',
+        name: 'Partido amistoso',
+        startTime: '2024-01-01T15:00:00.000Z',
+        endTime: '2024-01-01T17:00:00.000Z',
+        teamId: 'team-uuid',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'El header X-Coach-Id falta o no coincide con el coach del equipo',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Solo el coach del equipo puede cambiar el estado del evento',
+        error: 'Forbidden',
+      },
+    },
+  })
   @UseGuards(CoachGuard)
   updateStatus(@Param('id') id: string, @Body() updateStatusDto: UpdateEventStatusDto) {
     return this.eventsService.updateStatus(id, updateStatusDto);

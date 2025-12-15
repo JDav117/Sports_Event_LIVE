@@ -1,29 +1,41 @@
 import { Injectable } from '@nestjs/common';
-
-interface AuditEntry {
-  timestamp: Date;
-  action: string;
-  context: Record<string, any>;
-}
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { AuditLog } from '../entities/audit-log.entity';
 
 @Injectable()
 export class AuditService {
-  private logs: AuditEntry[] = [];
-  private readonly maxLogs = 1000;
+  constructor(
+    @InjectRepository(AuditLog)
+    private readonly auditRepository: Repository<AuditLog>,
+  ) {}
 
-  logWs(action: string, context: Record<string, any>) {
-    const entry: AuditEntry = { timestamp: new Date(), action, context };
-    this.logs.push(entry);
-    if (this.logs.length > this.maxLogs) {
-      this.logs.shift();
-    }
-    console.warn(`[AUDIT][WS] ${action}`, {
-      ...context,
-      timestamp: entry.timestamp.toISOString(),
+  async logWs(action: string, context: Record<string, any>) {
+    const entry = this.auditRepository.create({
+      action,
+      channel: 'ws',
+      playerId: context.playerId,
+      teamId: context.teamId,
+      eventId: context.eventId,
+      ip: context.ip,
+      context,
     });
+
+    const saved = await this.auditRepository.save(entry);
+
+    console.info(`[AUDIT][WS] ${action}`, {
+      ...context,
+      createdAt: saved.createdAt.toISOString(),
+    });
+
+    return saved;
   }
 
-  getLogs(limit = 100): AuditEntry[] {
-    return this.logs.slice(-limit).reverse();
+  async getLogs(limit = 100): Promise<AuditLog[]> {
+    return this.auditRepository.find({
+      where: { channel: 'ws' },
+      order: { createdAt: 'DESC' },
+      take: limit,
+    });
   }
 }
