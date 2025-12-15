@@ -1,4 +1,4 @@
-import { Module, MiddlewareConsumer } from '@nestjs/common';
+import { Module, MiddlewareConsumer, forwardRef } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlayerEnrollmentService } from './player-enrollment.service';
 import { PlayerEnrollmentController } from './player-enrollment.controller';
@@ -12,7 +12,7 @@ import { AuditMiddleware } from '../common/middlewares/audit.middleware';
   imports: [
     TypeOrmModule.forFeature([PlayerEnrollment]),
     TeamsModule,
-    EventsModule,
+    forwardRef(() => EventsModule),
   ],
   controllers: [PlayerEnrollmentController],
   providers: [PlayerEnrollmentService, AuditMiddleware],

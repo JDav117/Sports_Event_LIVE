@@ -1,16 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Event, EventStatus, EventType } from './event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { UpdateEventStatusDto } from './dto/update-event-status.dto';
+import { EventsGateway } from './events.gateway';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    private readonly eventsGateway: EventsGateway,
   ) {}
 
   async create(createEventDto: CreateEventDto): Promise<Event> {
@@ -104,7 +106,7 @@ export class EventsService {
     // Validar que no se pueda editar un evento live o finished
     if (event.status === EventStatus.LIVE || event.status === EventStatus.FINISHED) {
       throw new BadRequestException(
-        `No se puede editar el horario de un evento en estado ${event.status}`
+        `No se puede editar el horario de un evento en estado ${event.status}`,
       );
     }
 
@@ -129,49 +131,45 @@ export class EventsService {
     return await this.eventRepository.save(event);
   }
 
-  async updateStatus(id: string, updateStatusDto: UpdateEventStatusDto, coachId?: string): Promise<Event> {
+  async updateStatus(id: string, updateStatusDto: UpdateEventStatusDto): Promise<Event> {
     const event = await this.findOne(id);
+    const previousStatus = event.status;
     const newStatus = updateStatusDto.status;
 
-    // Solo el coach puede cambiar a live o finished
-    // NOTA IMPORTANTE: En producción, esto debería verificarse con un Guard de autenticación y JWT
-    // que valide que el usuario actual es el entrenador del equipo (event.team.coach)
-    // 
-    // Implementación recomendada:
-    // 1. Crear un AuthGuard que extraiga el usuario del JWT
-    // 2. Verificar que user.id === event.team.coach o user.role === 'coach'
-    // 3. Aplicar el guard con @UseGuards(AuthGuard, CoachGuard) en el controlador
-    //
-    // Ejemplo de implementación futura:
-    if (newStatus === EventStatus.LIVE || newStatus === EventStatus.FINISHED) {
-      // TODO: Implementar validación real cuando se integre autenticación
-      // if (!coachId || event.team.coach !== coachId) {
-      //   throw new ForbiddenException('Solo el entrenador puede cambiar el evento a este estado');
-      // }
-      console.log(`[SECURITY] Estado del evento ${id} cambiado a ${newStatus}. Validar que sea el coach autorizado.`);
-    }
+    // Validación de coach aplicada en CoachGuard (ver controlador).
 
     // Validar margen de tiempo para iniciar evento
     if (newStatus === EventStatus.LIVE) {
       const now = new Date();
       const startTime = new Date(event.startTime);
-      const marginMinutes = parseInt(process.env.EVENT_START_MARGIN_MINUTES) || 15;
+      const marginMinutes = parseInt(process.env.EVENT_START_MARGIN_MINUTES || '', 10) || 15;
       const marginMs = marginMinutes * 60 * 1000;
 
       if (now < new Date(startTime.getTime() - marginMs)) {
         throw new BadRequestException(
-          `No se puede iniciar el evento antes de ${marginMinutes} minutos de su hora de inicio`
+          `No se puede iniciar el evento antes de ${marginMinutes} minutos de su hora de inicio`,
         );
       }
     }
 
     event.status = newStatus;
-    return await this.eventRepository.save(event);
+    const saved = await this.eventRepository.save(event);
+
+    // Notificar cambios de estado en tiempo real
+    if (previousStatus !== newStatus) {
+      if (newStatus === EventStatus.LIVE) {
+        this.eventsGateway.notifyEventStarted(id);
+      } else if (newStatus === EventStatus.FINISHED) {
+        this.eventsGateway.notifyEventEnded(id);
+      }
+    }
+
+    return saved;
   }
 
   async remove(id: string): Promise<void> {
     const event = await this.findOne(id);
-    
+
     if (event.status === EventStatus.LIVE) {
       throw new BadRequestException('No se puede eliminar un evento en vivo');
     }
