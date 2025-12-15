@@ -146,27 +146,36 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId } = data;
+    console.log(`[WS] leave_event received: event ${eventId}, player ${playerId}, socket ${client.id}`);
 
     client.leave(eventId);
 
+    let removedPlayer: PlayerConnection | undefined;
+
     if (this.eventRooms.has(eventId)) {
       const players = this.eventRooms.get(eventId)!;
-      const playerIndex = players.findIndex(p => p.playerId === playerId);
+      const playerIndex = players.findIndex(p => p.playerId === playerId || p.socketId === client.id);
 
       if (playerIndex !== -1) {
-        const player = players[playerIndex];
+        removedPlayer = players[playerIndex];
         players.splice(playerIndex, 1);
 
-        this.server.to(eventId).emit('player.left_event', {
+        const payload = {
           eventId,
-          playerId,
-          playerName: player.playerName,
+          playerId: removedPlayer.playerId,
+          playerName: removedPlayer.playerName,
           timestamp: new Date(),
-        });
+        };
 
-        this.updateConnectedPlayers(eventId);
+        client.emit('player.left_event', payload);
+        this.server.to(eventId).emit('player.left_event', payload);
+
+        console.log(`[WS] leave_event removed: event ${eventId}, player ${removedPlayer.playerId}, socket ${client.id}`);
       }
     }
+
+    // Siempre notificar la métrica al cliente que sale y al resto de la sala
+    this.updateConnectedPlayers(eventId, client);
 
     return { success: true, message: 'Saliste del evento' };
   }
@@ -269,9 +278,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
-  private updateConnectedPlayers(eventId: string) {
+  private updateConnectedPlayers(eventId: string, client?: Socket) {
     const players = this.eventRooms.get(eventId) || [];
-    this.server.to(eventId).emit('event.connected_players', {
+    const payload = {
       eventId,
       connectedPlayers: players.length,
       players: players.map(p => ({
@@ -279,7 +288,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
         playerName: p.playerName,
         joinedAt: p.joinedAt,
       })),
-    });
+    };
+
+    this.server.to(eventId).emit('event.connected_players', payload);
+
+    if (client) {
+      client.emit('event.connected_players', payload);
+    }
   }
 
   // Método para obtener jugadores conectados (útil para el servicio de asistencia)
