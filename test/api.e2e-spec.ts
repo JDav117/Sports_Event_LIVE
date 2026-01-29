@@ -80,10 +80,7 @@ describe('Project Structure (e2e)', () => {
     });
 
     it('should have Teams service', () => {
-      const servicePath = path.join(
-        __dirname,
-        '../src/teams/teams.service.ts',
-      );
+      const servicePath = path.join(__dirname, '../src/teams/teams.service.ts');
       expect(fs.existsSync(servicePath)).toBe(true);
     });
 
