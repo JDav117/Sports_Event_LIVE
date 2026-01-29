@@ -46,6 +46,9 @@ jobs:
       - name: Ejecutar análisis de código (Linting y formato)
         run: npm run lint
 
+      - name: Ejecutar análisis de código (Unused imports/code)
+        run: npm run lint -- --fix --report-unused-disable-directives
+
       - name: Ejecutar pruebas unitarias
         run: npm run test:cov
 
