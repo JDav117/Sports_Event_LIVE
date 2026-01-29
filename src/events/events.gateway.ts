@@ -155,7 +155,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       message: string;
       isCoachFeedback?: boolean;
     },
-    @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, message, isCoachFeedback } = data;
 
@@ -186,7 +185,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       playerName: string;
       reason?: string;
     },
-    @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, reason } = data;
 
@@ -217,7 +215,6 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       playerName: string;
       reason?: string;
     },
-    @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, reason } = data;
 

@@ -24,7 +24,7 @@ export class AuditMiddleware implements NestMiddleware {
     const originalJson = res.json.bind(res);
 
     res.json = (body: any) => {
-      const duration = Date.now() - startTime;
+      Date.now() - startTime;
 
       // Auditar acciones específicas
       this.auditRequest(req, res, body);

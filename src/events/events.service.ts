@@ -2,10 +2,9 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
-  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Event, EventStatus, EventType } from './event.entity';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -157,7 +156,6 @@ export class EventsService {
   async updateStatus(
     id: string,
     updateStatusDto: UpdateEventStatusDto,
-    coachId?: string,
   ): Promise<Event> {
     const event = await this.findOne(id);
     const newStatus = updateStatusDto.status;

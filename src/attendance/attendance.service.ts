@@ -1,11 +1,7 @@
-import {
-  Injectable,
-  NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Attendance, ParticipationType } from './attendance.entity';
+import { Attendance } from './attendance.entity';
 import { RecordParticipationDto } from './dto/record-participation.dto';
 import { EventsService } from '../events/events.service';
 import { EventsGateway } from '../events/events.gateway';

@@ -1,0 +1,16 @@
+{
+    "configurations": [
+        {
+            "type": "pwa-node",
+            "request": "launch",
+            "name": "Run npm lint",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "lint"
+            ],
+            "cwd": "${workspaceFolder}",
+            "internalConsoleOptions": "neverOpen"
+        }
+    ]
+}
