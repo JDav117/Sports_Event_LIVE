@@ -43,6 +43,9 @@ jobs:
       - name: Instalar dependencias
         run: npm install
 
+      - name: Ejecutar análisis de código (Linting y formato)
+        run: npm run lint
+
       - name: Ejecutar pruebas unitarias
         run: npm run test:cov
 
