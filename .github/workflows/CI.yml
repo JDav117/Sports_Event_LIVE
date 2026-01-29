@@ -1,30 +1,29 @@
-name: CI de Spring Boot
+name: CI - Sports Events Platform
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'backen-usersapp/**'
-jobs:
-  check_backend_ci:
-    runs-on: ubuntu-latest
+      - 'src/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - '.github/workflows/CI.yml'
 
-    defaults:
-      run:
-        working-directory: ./backen-usersapp
+jobs:
+  test:
+    runs-on: ubuntu-latest
     
     services:
       mysql:
         image: mysql:8.0
         env:
-          MYSQL_ROOT_PASSWORD: luis1234
-          MYSQL_DATABASE: db_user_springboot
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: sports_events_test
           MYSQL_USER: testuser
-          MYSQL_PASSWORD: luis1234
+          MYSQL_PASSWORD: testpass123
         ports:
           - 3306:3306
-        
         options: >-
           --health-cmd="mysqladmin ping"
           --health-interval=10s
@@ -32,23 +31,29 @@ jobs:
           --health-retries=5
 
     steps:
-      - name: Checkout del codigo
-        uses: actions/checkout@v4 
+      - name: Checkout del código
+        uses: actions/checkout@v4
 
-      - name: Configurar Java 17
-        uses: actions/setup-java@v4 
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
         with:
-          java-version: "17"
-          distribution: "temurin"
-          cache: "maven"
+          node-version: '18'
+          cache: 'npm'
 
-      - name: Dar permisos de ejecución a mvnw
-        run: chmod +x mvnw
-        
+      - name: Instalar dependencias
+        run: npm install
 
-      - name: Compilar y ejecutar pruebas con Maven
+      - name: Linting
+        run: npm run lint
+
+      - name: Ejecutar pruebas unitarias
+        run: npm run test:cov
+
+      - name: Ejecutar pruebas E2E
         env:
-          SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/db_user_springboot # 'mysql' es el nombre del servicio
-          SPRING_DATASOURCE_USERNAME: testuser
-          SPRING_DATASOURCE_PASSWORD: luis1234
-        run: ./mvnw clean verify
+          DB_HOST: localhost
+          DB_PORT: 3306
+          DB_USERNAME: testuser
+          DB_PASSWORD: testpass123
+          DB_NAME: sports_events_test
+        run: npm run test:e2e
