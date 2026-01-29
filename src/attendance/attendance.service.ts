@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Attendance, ParticipationType } from './attendance.entity';
@@ -16,14 +20,18 @@ export class AttendanceService {
     private readonly eventsGateway: EventsGateway,
   ) {}
 
-  async recordParticipation(recordDto: RecordParticipationDto): Promise<Attendance> {
+  async recordParticipation(
+    recordDto: RecordParticipationDto,
+  ): Promise<Attendance> {
     const { playerId, playerName, eventId, type, content } = recordDto;
 
     // Verificar que el evento existe y está en vivo
     const event = await this.eventsService.findOne(eventId);
 
     if (event.status !== EventStatus.LIVE) {
-      throw new BadRequestException('Solo se puede registrar participación en eventos en vivo');
+      throw new BadRequestException(
+        'Solo se puede registrar participación en eventos en vivo',
+      );
     }
 
     // Buscar o crear registro de asistencia
@@ -59,18 +67,28 @@ export class AttendanceService {
     return await this.attendanceRepository.save(attendance);
   }
 
-  async markAttendance(eventId: string, playerId: string, playerName: string): Promise<Attendance> {
+  async markAttendance(
+    eventId: string,
+    playerId: string,
+    playerName: string,
+  ): Promise<Attendance> {
     const event = await this.eventsService.findOne(eventId);
 
     if (event.status === EventStatus.FINISHED) {
-      throw new BadRequestException('No se puede marcar asistencia después de que el evento haya finalizado');
+      throw new BadRequestException(
+        'No se puede marcar asistencia después de que el evento haya finalizado',
+      );
     }
 
     // Calcular minutos conectados
-    const connectionTimeMs = this.eventsGateway.getPlayerConnectionTime(eventId, playerId);
+    const connectionTimeMs = this.eventsGateway.getPlayerConnectionTime(
+      eventId,
+      playerId,
+    );
     const minutesConnected = Math.floor(connectionTimeMs / 60000);
 
-    const minAttendanceMinutes = parseInt(process.env.MIN_ATTENDANCE_MINUTES) || 10;
+    const minAttendanceMinutes =
+      parseInt(process.env.MIN_ATTENDANCE_MINUTES) || 10;
 
     let attendance = await this.attendanceRepository.findOne({
       where: { playerId, eventId },
@@ -87,8 +105,12 @@ export class AttendanceService {
         participations: [],
       });
     } else {
-      attendance.minutesConnected = Math.max(attendance.minutesConnected, minutesConnected);
-      attendance.wasPresent = attendance.minutesConnected >= minAttendanceMinutes;
+      attendance.minutesConnected = Math.max(
+        attendance.minutesConnected,
+        minutesConnected,
+      );
+      attendance.wasPresent =
+        attendance.minutesConnected >= minAttendanceMinutes;
     }
 
     return await this.attendanceRepository.save(attendance);
@@ -120,19 +142,25 @@ export class AttendanceService {
     const attendances = await this.getEventAttendance(eventId);
     const event = await this.eventsService.findOne(eventId);
 
-    const totalPresent = attendances.filter(a => a.wasPresent).length;
-    const totalAbsent = attendances.filter(a => !a.wasPresent).length;
-    const totalEnrolled = event.enrollments?.filter(e => e.status === 'approved').length || 0;
+    const totalPresent = attendances.filter((a) => a.wasPresent).length;
+    const totalAbsent = attendances.filter((a) => !a.wasPresent).length;
+    const totalEnrolled =
+      event.enrollments?.filter((e) => e.status === 'approved').length || 0;
 
-    const avgMinutesConnected = attendances.length > 0
-      ? attendances.reduce((sum, a) => sum + a.minutesConnected, 0) / attendances.length
-      : 0;
+    const avgMinutesConnected =
+      attendances.length > 0
+        ? attendances.reduce((sum, a) => sum + a.minutesConnected, 0) /
+          attendances.length
+        : 0;
 
-    const avgParticipations = attendances.length > 0
-      ? attendances.reduce((sum, a) => sum + a.participationCount, 0) / attendances.length
-      : 0;
+    const avgParticipations =
+      attendances.length > 0
+        ? attendances.reduce((sum, a) => sum + a.participationCount, 0) /
+          attendances.length
+        : 0;
 
-    const attendanceRate = totalEnrolled > 0 ? (totalPresent / totalEnrolled) * 100 : 0;
+    const attendanceRate =
+      totalEnrolled > 0 ? (totalPresent / totalEnrolled) * 100 : 0;
 
     return {
       totalEnrolled,
@@ -148,7 +176,9 @@ export class AttendanceService {
     const event = await this.eventsService.findOne(eventId);
 
     if (event.status !== EventStatus.FINISHED) {
-      throw new BadRequestException('Solo se puede finalizar la asistencia de eventos finalizados');
+      throw new BadRequestException(
+        'Solo se puede finalizar la asistencia de eventos finalizados',
+      );
     }
 
     const connectedPlayers = this.eventsGateway.getConnectedPlayers(eventId);

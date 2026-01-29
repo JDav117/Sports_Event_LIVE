@@ -1,4 +1,13 @@
-import { IsString, IsEnum, IsInt, Min, IsArray, IsOptional, MaxLength, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsInt,
+  Min,
+  IsArray,
+  IsOptional,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { SportType, Category } from '../team.entity';
 
@@ -23,7 +32,11 @@ export class CreateTeamDto {
   @MaxLength(100)
   coach: string;
 
-  @ApiProperty({ description: 'Número máximo de jugadores', example: 25, minimum: 5 })
+  @ApiProperty({
+    description: 'Número máximo de jugadores',
+    example: 25,
+    minimum: 5,
+  })
   @IsInt()
   @Min(5)
   maxPlayers: number;

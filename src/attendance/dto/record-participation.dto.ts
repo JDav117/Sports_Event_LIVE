@@ -1,4 +1,10 @@
-import { IsString, IsUUID, IsEnum, IsOptional, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsUUID,
+  IsEnum,
+  IsOptional,
+  MaxLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ParticipationType } from '../attendance.entity';
 
@@ -23,7 +29,9 @@ export class RecordParticipationDto {
   @IsEnum(ParticipationType)
   type: ParticipationType;
 
-  @ApiPropertyOptional({ description: 'Contenido de la participación (mensaje, feedback, etc.)' })
+  @ApiPropertyOptional({
+    description: 'Contenido de la participación (mensaje, feedback, etc.)',
+  })
   @IsOptional()
   @IsString()
   @MaxLength(1000)

@@ -1,23 +1,45 @@
-import { IsString, IsEnum, IsDateString, IsOptional, IsInt, Min, IsUUID, MaxLength, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsEnum,
+  IsDateString,
+  IsOptional,
+  IsInt,
+  Min,
+  IsUUID,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { EventType } from '../event.entity';
 
 export class CreateEventDto {
-  @ApiProperty({ description: 'Nombre del evento', example: 'Entrenamiento Táctico' })
+  @ApiProperty({
+    description: 'Nombre del evento',
+    example: 'Entrenamiento Táctico',
+  })
   @IsString()
   @MinLength(3)
   @MaxLength(200)
   name: string;
 
-  @ApiProperty({ description: 'Fecha y hora de inicio', example: '2025-12-10T15:00:00Z' })
+  @ApiProperty({
+    description: 'Fecha y hora de inicio',
+    example: '2025-12-10T15:00:00Z',
+  })
   @IsDateString()
   startTime: string;
 
-  @ApiProperty({ description: 'Fecha y hora de fin', example: '2025-12-10T17:00:00Z' })
+  @ApiProperty({
+    description: 'Fecha y hora de fin',
+    example: '2025-12-10T17:00:00Z',
+  })
   @IsDateString()
   endTime: string;
 
-  @ApiProperty({ description: 'Ubicación del evento', example: 'Estadio Principal' })
+  @ApiProperty({
+    description: 'Ubicación del evento',
+    example: 'Estadio Principal',
+  })
   @IsString()
   @MinLength(3)
   @MaxLength(200)
@@ -35,7 +57,10 @@ export class CreateEventDto {
   @IsUUID()
   teamId: string;
 
-  @ApiPropertyOptional({ description: 'Número máximo de asistentes', example: 20 })
+  @ApiPropertyOptional({
+    description: 'Número máximo de asistentes',
+    example: 20,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)

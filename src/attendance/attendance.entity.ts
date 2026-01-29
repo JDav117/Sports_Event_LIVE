@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
 import { Event } from '../events/event.entity';
 
 export enum ParticipationType {
@@ -19,7 +26,7 @@ export class Attendance {
   @Column()
   playerName: string;
 
-  @ManyToOne(() => Event, event => event.attendances)
+  @ManyToOne(() => Event, (event) => event.attendances)
   @JoinColumn({ name: 'eventId' })
   event: Event;
 

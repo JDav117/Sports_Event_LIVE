@@ -22,7 +22,7 @@ export class AuditMiddleware implements NestMiddleware {
 
     // Capturar la respuesta original
     const originalJson = res.json.bind(res);
-    
+
     res.json = (body: any) => {
       const duration = Date.now() - startTime;
 
@@ -36,7 +36,7 @@ export class AuditMiddleware implements NestMiddleware {
   }
 
   private auditRequest(req: Request, res: Response, body: any) {
-    const playerId = req.body?.playerId || req.query?.playerId as string;
+    const playerId = req.body?.playerId || (req.query?.playerId as string);
     const teamId = req.currentTeamId || req.body?.teamId;
     const eventId = req.currentEventId || req.body?.eventId;
 
@@ -71,7 +71,10 @@ export class AuditMiddleware implements NestMiddleware {
     }
 
     // Auditar exceso de inscripciones
-    if (body?.message?.includes('maximum') || body?.message?.includes('excede')) {
+    if (
+      body?.message?.includes('maximum') ||
+      body?.message?.includes('excede')
+    ) {
       this.logAudit({
         timestamp: new Date(),
         method: req.method,
@@ -104,15 +107,19 @@ export class AuditMiddleware implements NestMiddleware {
   }
 
   // Método para obtener logs (útil para debugging)
-  getAuditLogs(filters?: { playerId?: string; action?: string; limit?: number }): AuditLog[] {
+  getAuditLogs(filters?: {
+    playerId?: string;
+    action?: string;
+    limit?: number;
+  }): AuditLog[] {
     let logs = [...this.auditLogs];
 
     if (filters?.playerId) {
-      logs = logs.filter(log => log.playerId === filters.playerId);
+      logs = logs.filter((log) => log.playerId === filters.playerId);
     }
 
     if (filters?.action) {
-      logs = logs.filter(log => log.action === filters.action);
+      logs = logs.filter((log) => log.action === filters.action);
     }
 
     const limit = filters?.limit || 100;

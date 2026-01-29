@@ -38,6 +38,7 @@ El sistema implementa **WebSockets** para comunicación en tiempo real, permitie
 ## Características Principales
 
 ### Gestión de Equipos (Teams)
+
 - CRUD completo de equipos deportivos
 - Categorías: sub-18, sub-21, libre, femenino, masculino, mixto
 - Tipos de deporte: fútbol, básquet, voleibol, tenis, balonmano, otros
@@ -46,6 +47,7 @@ El sistema implementa **WebSockets** para comunicación en tiempo real, permitie
 - Relación entrenador-equipo (un entrenador puede tener varios equipos)
 
 ### Gestión de Eventos (Events)
+
 - Crear entrenamientos, partidos, amistosos y torneos
 - Estados: scheduled, live, finished, cancelled
 - Control de inicio/fin de eventos con validaciones temporales
@@ -54,6 +56,7 @@ El sistema implementa **WebSockets** para comunicación en tiempo real, permitie
 - Restricción de edición para eventos live o finished
 
 ### Inscripción de Jugadores (PlayerEnrollment)
+
 - Inscripción a equipos y/o eventos específicos
 - Validación de límite máximo de jugadores
 - Sistema de aprobación manual por el entrenador
@@ -61,6 +64,7 @@ El sistema implementa **WebSockets** para comunicación en tiempo real, permitie
 - Prevención de inscripciones duplicadas
 
 ### Asistencia y Participación (Attendance & Participation)
+
 - **Asistencia automática**: El jugador es marcado presente si permanece conectado el tiempo mínimo configurado
 - **Registro de participaciones**:
   - Mensajes en chat
@@ -71,6 +75,7 @@ El sistema implementa **WebSockets** para comunicación en tiempo real, permitie
 - Finalización automática de asistencia al terminar eventos
 
 ### WebSockets en Tiempo Real
+
 - Salas independientes por evento (eventId)
 - Chat en tiempo real del equipo
 - Lista de jugadores conectados en vivo
@@ -120,29 +125,35 @@ El sistema implementa **WebSockets** para comunicación en tiempo real, permitie
 ## 🛠️ Tecnologías Utilizadas
 
 ### Core Framework
+
 - **NestJS 10.3**: Framework progresivo de Node.js
 - **TypeScript 5.3**: Tipado estático
 - **Node.js**: Runtime de JavaScript
 
 ### Base de Datos
+
 - **TypeORM 0.3**: ORM para TypeScript y JavaScript
 - **MySQL/MariaDB**: Base de datos relacional con soporte completo para ENUM y JSON
 
 ### Comunicación en Tiempo Real
+
 - **Socket.io 4.6**: WebSockets bidireccionales
 - **@nestjs/websockets**: Integración de WebSockets con NestJS
 - **@nestjs/platform-socket.io**: Adaptador de Socket.io para NestJS
 
 ### Documentación
+
 - **Swagger (OpenAPI) 7.2**: Documentación interactiva de API
 - **@nestjs/swagger**: Integración de Swagger con NestJS
 
 ### Seguridad
+
 - **Helmet 7.1**: Cabeceras de seguridad HTTP
 - **@nestjs/throttler 5.1**: Rate limiting y throttling
 - **CORS**: Control de acceso entre orígenes
 
 ### Validación
+
 - **class-validator 0.14**: Validación de DTOs
 - **class-transformer 0.5**: Transformación de objetos
 
@@ -417,6 +428,7 @@ Proyecto 4/
 **Entidad**: `Team`
 
 **Campos principales**:
+
 - `id`: UUID único
 - `name`: Nombre del equipo
 - `category`: Categoría (sub-18, sub-21, libre, femenino, masculino, mixto)
@@ -437,6 +449,7 @@ DELETE /teams/:id          - Eliminar equipo
 ```
 
 **Filtros disponibles**:
+
 - `coach`: Filtrar por entrenador
 - `sportType`: Filtrar por tipo de deporte
 - `category`: Filtrar por categoría
@@ -450,6 +463,7 @@ DELETE /teams/:id          - Eliminar equipo
 **Entidad**: `Event`
 
 **Campos principales**:
+
 - `id`: UUID único
 - `name`: Nombre del evento
 - `startTime`: Fecha y hora de inicio
@@ -472,6 +486,7 @@ DELETE /events/:id         - Eliminar evento
 ```
 
 **Filtros disponibles**:
+
 - `teamId`: Filtrar por equipo
 - `type`: Filtrar por tipo de evento
 - `status`: Filtrar por estado
@@ -480,12 +495,14 @@ DELETE /events/:id         - Eliminar evento
 - `page` y `limit`: Paginación
 
 **Estados del evento**:
+
 - `scheduled`: Programado (estado inicial)
 - `live`: En vivo (solo coach puede activar)
 - `finished`: Finalizado (solo coach puede marcar)
 - `cancelled`: Cancelado
 
 **Reglas de negocio**:
+
 1. Solo el entrenador puede cambiar un evento a `live` o `finished`
 2. No se puede editar el horario de eventos `live` o `finished`
 3. No se puede iniciar un evento antes del margen configurado (por defecto 15 minutos)
@@ -498,6 +515,7 @@ DELETE /events/:id         - Eliminar evento
 **Entidad**: `PlayerEnrollment`
 
 **Campos principales**:
+
 - `id`: UUID único
 - `playerId`: ID del jugador
 - `playerName`: Nombre del jugador
@@ -519,6 +537,7 @@ DELETE /enrollments/:id           - Eliminar inscripción
 ```
 
 **Filtros disponibles**:
+
 - `playerId`: Filtrar por jugador
 - `teamId`: Filtrar por equipo
 - `eventId`: Filtrar por evento
@@ -526,6 +545,7 @@ DELETE /enrollments/:id           - Eliminar inscripción
 - `page` y `limit`: Paginación
 
 **Reglas de negocio**:
+
 1. No se puede exceder `maxPlayers` del equipo
 2. No se puede exceder `maxAttendees` del evento (si está configurado)
 3. No se permiten inscripciones duplicadas
@@ -538,6 +558,7 @@ DELETE /enrollments/:id           - Eliminar inscripción
 **Entidad**: `Attendance`
 
 **Campos principales**:
+
 - `id`: UUID único
 - `playerId`: ID del jugador
 - `playerName`: Nombre del jugador
@@ -562,17 +583,20 @@ POST   /attendance/finalize/:eventId       - Finalizar asistencia del evento
 ```
 
 **Tipos de participación**:
+
 - `chat_message`: Mensaje general en el chat
 - `tactical_feedback`: Feedback táctico (generalmente del coach)
 - `substitution_request`: Solicitud de cambio
 - `timeout_request`: Solicitud de tiempo fuera
 
 **Cálculo de asistencia**:
+
 - Un jugador es marcado como `presente` si estuvo conectado al menos `MIN_ATTENDANCE_MINUTES` (por defecto 10 minutos)
 - El tiempo se calcula desde que el jugador se conecta a la sala WebSocket hasta que se desconecta
 - Al finalizar el evento, se registra automáticamente la asistencia de todos los jugadores conectados
 
 **Estadísticas disponibles**:
+
 - Total de inscritos
 - Total de presentes
 - Total de ausentes
@@ -591,6 +615,7 @@ Una vez que la aplicación esté ejecutándose, accede a la documentación inter
 **URL**: http://localhost:3000/api/docs
 
 Swagger UI proporciona:
+
 - 📝 Descripción completa de cada endpoint
 - 🧪 Interfaz para probar las APIs directamente
 - 📊 Esquemas de datos (DTOs)
@@ -629,6 +654,7 @@ Swagger UI proporciona:
 **URL**: `ws://localhost:3000`
 
 **Librerías cliente recomendadas**:
+
 - JavaScript/TypeScript: `socket.io-client`
 - Python: `python-socketio`
 - Java: `socket.io-client-java`
@@ -655,7 +681,7 @@ socket.on('connect', () => {
 socket.emit('join_event', {
   eventId: 'evento-uuid',
   playerId: 'jugador-uuid',
-  playerName: 'Carlos Martínez'
+  playerName: 'Carlos Martínez',
 });
 
 // Respuesta
@@ -670,7 +696,7 @@ socket.on('join_event', (response) => {
 ```javascript
 socket.emit('leave_event', {
   eventId: 'evento-uuid',
-  playerId: 'jugador-uuid'
+  playerId: 'jugador-uuid',
 });
 ```
 
@@ -682,7 +708,7 @@ socket.emit('send_chat_message', {
   playerId: 'jugador-uuid',
   playerName: 'Carlos Martínez',
   message: 'Hola equipo!',
-  isCoachFeedback: false  // true si es feedback táctico del coach
+  isCoachFeedback: false, // true si es feedback táctico del coach
 });
 ```
 
@@ -695,7 +721,7 @@ socket.emit('request_substitution', {
   eventId: 'evento-uuid',
   playerId: 'jugador-uuid',
   playerName: 'Carlos Martínez',
-  reason: 'Cansancio'  // Opcional
+  reason: 'Cansancio', // Opcional
 });
 ```
 
@@ -708,7 +734,7 @@ socket.emit('request_timeout', {
   eventId: 'evento-uuid',
   playerId: 'jugador-uuid',
   playerName: 'Carlos Martínez',
-  reason: 'Estrategia'  // Opcional
+  reason: 'Estrategia', // Opcional
 });
 ```
 
@@ -811,6 +837,7 @@ CORS_ORIGIN_COACHES=http://localhost:4201
 ```
 
 **Headers permitidos**:
+
 - `Content-Type`
 - `Authorization`
 - `X-Team-Id`
@@ -829,9 +856,11 @@ Helmet configura automáticamente cabeceras HTTP para proteger contra vulnerabil
 ### 3. Rate Limiting
 
 **Rate Limiting General**:
+
 - 100 peticiones cada 60 segundos por IP (configurable)
 
 **Rate Limiting de Chat**:
+
 - 5 mensajes cada 10 segundos por socket (configurable)
 
 **Configuración en `.env`**:
@@ -856,10 +885,12 @@ Todas las entradas son validadas usando `class-validator`:
 ### 5. Middlewares de Auditoría
 
 **SportContextMiddleware**:
+
 - Extrae contexto deportivo de headers y params
 - Añade `currentTeamId` y `currentEventId` al request
 
 **AuditMiddleware**:
+
 - Registra intentos de acceso no autorizado
 - Log de inscripciones fallidas
 - Auditoría de exceso de límites
@@ -968,7 +999,7 @@ import axios from 'axios';
 
 // 1. Iniciar el evento (REST API - solo coach)
 await axios.patch('http://localhost:3000/events/event-uuid/status', {
-  status: 'live'
+  status: 'live',
 });
 
 // 2. Conectar WebSocket
@@ -978,7 +1009,7 @@ const socket = io('http://localhost:3000');
 socket.emit('join_event', {
   eventId: 'event-uuid',
   playerId: 'player-123',
-  playerName: 'Carlos Martínez'
+  playerName: 'Carlos Martínez',
 });
 
 // 4. Escuchar eventos
@@ -995,7 +1026,7 @@ socket.emit('send_chat_message', {
   eventId: 'event-uuid',
   playerId: 'player-123',
   playerName: 'Carlos Martínez',
-  message: '¡Listos para entrenar!'
+  message: '¡Listos para entrenar!',
 });
 
 // 6. Solicitar cambio
@@ -1003,7 +1034,7 @@ socket.emit('request_substitution', {
   eventId: 'event-uuid',
   playerId: 'player-123',
   playerName: 'Carlos Martínez',
-  reason: 'Necesito descansar'
+  reason: 'Necesito descansar',
 });
 ```
 
@@ -1077,16 +1108,18 @@ npm install
 **Solución**:
 
 1. Verificar que MySQL/MariaDB esté ejecutándose:
+
    ```powershell
    # Para MySQL
    Get-Service MySQL*
-   
+
    # Para MariaDB
    Get-Service MariaDB
    ```
 
 2. Verificar credenciales en `.env`
 3. Verificar que la base de datos existe:
+
    ```sql
    SHOW DATABASES;
    ```
@@ -1101,15 +1134,17 @@ npm install
 **Solución**:
 
 1. Cambiar el puerto en `.env`:
+
    ```env
    PORT=3001
    ```
 
 2. O matar el proceso que usa el puerto:
+
    ```powershell
    # Encontrar el proceso
    netstat -ano | findstr :3000
-   
+
    # Matar el proceso (reemplaza PID)
    taskkill /PID <PID> /F
    ```
@@ -1171,7 +1206,7 @@ Este sistema proporciona una base sólida y escalable para gestión de eventos d
 ✅ Seguridad robusta con rate limiting y CORS  
 ✅ Documentación interactiva con Swagger  
 ✅ Auditoría de acciones críticas  
-✅ Validaciones exhaustivas de datos  
+✅ Validaciones exhaustivas de datos
 
 **¡Listo para comenzar tu gestión deportiva profesional!** 🚀⚽🏀
 

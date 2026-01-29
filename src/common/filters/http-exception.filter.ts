@@ -46,17 +46,17 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         error = responseObj.error || exception.name;
         details = responseObj.details;
       }
-    } 
+    }
     // Manejo de errores de TypeORM
     else if (exception instanceof Error) {
       const errorName = exception.constructor.name;
-      
+
       // Error de base de datos
       if (errorName.includes('QueryFailedError')) {
         status = HttpStatus.BAD_REQUEST;
         error = 'Database Error';
         message = 'Error en la operación de base de datos';
-        
+
         // Extraer información útil del error de MySQL
         const dbError = exception as any;
         if (dbError.code === 'ER_DUP_ENTRY') {
@@ -97,7 +97,9 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     if (status >= 500) {
       this.logger.error(
         `${request.method} ${request.url}`,
-        exception instanceof Error ? exception.stack : JSON.stringify(exception),
+        exception instanceof Error
+          ? exception.stack
+          : JSON.stringify(exception),
       );
     } else if (status >= 400) {
       this.logger.warn(

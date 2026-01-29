@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Event } from '../events/event.entity';
 import { PlayerEnrollment } from '../player-enrollment/player-enrollment.entity';
 
@@ -58,9 +65,9 @@ export class Team {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => Event, event => event.team)
+  @OneToMany(() => Event, (event) => event.team)
   events: Event[];
 
-  @OneToMany(() => PlayerEnrollment, enrollment => enrollment.team)
+  @OneToMany(() => PlayerEnrollment, (enrollment) => enrollment.team)
   enrollments: PlayerEnrollment[];
 }

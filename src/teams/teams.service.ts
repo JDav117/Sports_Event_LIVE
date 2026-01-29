@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Team } from './team.entity';
@@ -32,19 +36,27 @@ export class TeamsService {
     const queryBuilder = this.teamRepository.createQueryBuilder('team');
 
     if (filters?.coach) {
-      queryBuilder.andWhere('team.coach LIKE :coach', { coach: `%${filters.coach}%` });
+      queryBuilder.andWhere('team.coach LIKE :coach', {
+        coach: `%${filters.coach}%`,
+      });
     }
 
     if (filters?.sportType) {
-      queryBuilder.andWhere('team.sportType = :sportType', { sportType: filters.sportType });
+      queryBuilder.andWhere('team.sportType = :sportType', {
+        sportType: filters.sportType,
+      });
     }
 
     if (filters?.category) {
-      queryBuilder.andWhere('team.category = :category', { category: filters.category });
+      queryBuilder.andWhere('team.category = :category', {
+        category: filters.category,
+      });
     }
 
     if (filters?.tags) {
-      queryBuilder.andWhere('team.tags LIKE :tags', { tags: `%${filters.tags}%` });
+      queryBuilder.andWhere('team.tags LIKE :tags', {
+        tags: `%${filters.tags}%`,
+      });
     }
 
     const [data, total] = await queryBuilder
@@ -94,6 +106,6 @@ export class TeamsService {
       throw new NotFoundException(`Equipo con ID ${teamId} no encontrado`);
     }
 
-    return team.enrollments?.filter(e => e.status === 'approved').length || 0;
+    return team.enrollments?.filter((e) => e.status === 'approved').length || 0;
   }
 }

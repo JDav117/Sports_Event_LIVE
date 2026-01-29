@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Team } from '../teams/team.entity';
 import { Event } from '../events/event.entity';
 
@@ -41,14 +49,14 @@ export class PlayerEnrollment {
   })
   status: EnrollmentStatus;
 
-  @ManyToOne(() => Team, team => team.enrollments, { nullable: true })
+  @ManyToOne(() => Team, (team) => team.enrollments, { nullable: true })
   @JoinColumn({ name: 'teamId' })
   team: Team;
 
   @Column({ nullable: true })
   teamId: string;
 
-  @ManyToOne(() => Event, event => event.enrollments, { nullable: true })
+  @ManyToOne(() => Event, (event) => event.enrollments, { nullable: true })
   @JoinColumn({ name: 'eventId' })
   event: Event;
 

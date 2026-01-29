@@ -16,7 +16,7 @@ import { AuditMiddleware } from './common/middlewares/audit.middleware';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any || 'mysql',
+      type: (process.env.DB_TYPE as any) || 'mysql',
       host: process.env.DB_HOST || 'localhost',
       port: parseInt(process.env.DB_PORT) || 3306,
       username: process.env.DB_USERNAME || 'root',
@@ -52,8 +52,6 @@ import { AuditMiddleware } from './common/middlewares/audit.middleware';
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Aplicar middlewares a todas las rutas
-    consumer
-      .apply(SportContextMiddleware, AuditMiddleware)
-      .forRoutes('*');
+    consumer.apply(SportContextMiddleware, AuditMiddleware).forRoutes('*');
   }
 }

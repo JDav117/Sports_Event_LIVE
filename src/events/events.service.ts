@@ -1,4 +1,9 @@
-import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Between, MoreThanOrEqual, LessThanOrEqual } from 'typeorm';
 import { Event, EventStatus, EventType } from './event.entity';
@@ -19,7 +24,9 @@ export class EventsService {
     const endTime = new Date(createEventDto.endTime);
 
     if (endTime <= startTime) {
-      throw new BadRequestException('La hora de fin debe ser posterior a la hora de inicio');
+      throw new BadRequestException(
+        'La hora de fin debe ser posterior a la hora de inicio',
+      );
     }
 
     const event = this.eventRepository.create({
@@ -45,11 +52,14 @@ export class EventsService {
     const limit = filters?.limit || 10;
     const skip = (page - 1) * limit;
 
-    const queryBuilder = this.eventRepository.createQueryBuilder('event')
+    const queryBuilder = this.eventRepository
+      .createQueryBuilder('event')
       .leftJoinAndSelect('event.team', 'team');
 
     if (filters?.teamId) {
-      queryBuilder.andWhere('event.teamId = :teamId', { teamId: filters.teamId });
+      queryBuilder.andWhere('event.teamId = :teamId', {
+        teamId: filters.teamId,
+      });
     }
 
     if (filters?.type) {
@@ -57,7 +67,9 @@ export class EventsService {
     }
 
     if (filters?.status) {
-      queryBuilder.andWhere('event.status = :status', { status: filters.status });
+      queryBuilder.andWhere('event.status = :status', {
+        status: filters.status,
+      });
     }
 
     if (filters?.startDate && filters?.endDate) {
@@ -66,9 +78,13 @@ export class EventsService {
         endDate: filters.endDate,
       });
     } else if (filters?.startDate) {
-      queryBuilder.andWhere('event.startTime >= :startDate', { startDate: filters.startDate });
+      queryBuilder.andWhere('event.startTime >= :startDate', {
+        startDate: filters.startDate,
+      });
     } else if (filters?.endDate) {
-      queryBuilder.andWhere('event.startTime <= :endDate', { endDate: filters.endDate });
+      queryBuilder.andWhere('event.startTime <= :endDate', {
+        endDate: filters.endDate,
+      });
     }
 
     const [data, total] = await queryBuilder
@@ -102,19 +118,28 @@ export class EventsService {
     const event = await this.findOne(id);
 
     // Validar que no se pueda editar un evento live o finished
-    if (event.status === EventStatus.LIVE || event.status === EventStatus.FINISHED) {
+    if (
+      event.status === EventStatus.LIVE ||
+      event.status === EventStatus.FINISHED
+    ) {
       throw new BadRequestException(
-        `No se puede editar el horario de un evento en estado ${event.status}`
+        `No se puede editar el horario de un evento en estado ${event.status}`,
       );
     }
 
     // Si se actualizan las fechas, validar
     if (updateEventDto.startTime || updateEventDto.endTime) {
-      const startTime = updateEventDto.startTime ? new Date(updateEventDto.startTime) : event.startTime;
-      const endTime = updateEventDto.endTime ? new Date(updateEventDto.endTime) : event.endTime;
+      const startTime = updateEventDto.startTime
+        ? new Date(updateEventDto.startTime)
+        : event.startTime;
+      const endTime = updateEventDto.endTime
+        ? new Date(updateEventDto.endTime)
+        : event.endTime;
 
       if (endTime <= startTime) {
-        throw new BadRequestException('La hora de fin debe ser posterior a la hora de inicio');
+        throw new BadRequestException(
+          'La hora de fin debe ser posterior a la hora de inicio',
+        );
       }
 
       Object.assign(event, {
@@ -129,14 +154,18 @@ export class EventsService {
     return await this.eventRepository.save(event);
   }
 
-  async updateStatus(id: string, updateStatusDto: UpdateEventStatusDto, coachId?: string): Promise<Event> {
+  async updateStatus(
+    id: string,
+    updateStatusDto: UpdateEventStatusDto,
+    coachId?: string,
+  ): Promise<Event> {
     const event = await this.findOne(id);
     const newStatus = updateStatusDto.status;
 
     // Solo el coach puede cambiar a live o finished
     // NOTA IMPORTANTE: En producción, esto debería verificarse con un Guard de autenticación y JWT
     // que valide que el usuario actual es el entrenador del equipo (event.team.coach)
-    // 
+    //
     // Implementación recomendada:
     // 1. Crear un AuthGuard que extraiga el usuario del JWT
     // 2. Verificar que user.id === event.team.coach o user.role === 'coach'
@@ -148,19 +177,22 @@ export class EventsService {
       // if (!coachId || event.team.coach !== coachId) {
       //   throw new ForbiddenException('Solo el entrenador puede cambiar el evento a este estado');
       // }
-      console.log(`[SECURITY] Estado del evento ${id} cambiado a ${newStatus}. Validar que sea el coach autorizado.`);
+      console.log(
+        `[SECURITY] Estado del evento ${id} cambiado a ${newStatus}. Validar que sea el coach autorizado.`,
+      );
     }
 
     // Validar margen de tiempo para iniciar evento
     if (newStatus === EventStatus.LIVE) {
       const now = new Date();
       const startTime = new Date(event.startTime);
-      const marginMinutes = parseInt(process.env.EVENT_START_MARGIN_MINUTES) || 15;
+      const marginMinutes =
+        parseInt(process.env.EVENT_START_MARGIN_MINUTES) || 15;
       const marginMs = marginMinutes * 60 * 1000;
 
       if (now < new Date(startTime.getTime() - marginMs)) {
         throw new BadRequestException(
-          `No se puede iniciar el evento antes de ${marginMinutes} minutos de su hora de inicio`
+          `No se puede iniciar el evento antes de ${marginMinutes} minutos de su hora de inicio`,
         );
       }
     }
@@ -171,7 +203,7 @@ export class EventsService {
 
   async remove(id: string): Promise<void> {
     const event = await this.findOne(id);
-    
+
     if (event.status === EventStatus.LIVE) {
       throw new BadRequestException('No se puede eliminar un evento en vivo');
     }
@@ -189,6 +221,8 @@ export class EventsService {
       throw new NotFoundException(`Evento con ID ${eventId} no encontrado`);
     }
 
-    return event.enrollments?.filter(e => e.status === 'approved').length || 0;
+    return (
+      event.enrollments?.filter((e) => e.status === 'approved').length || 0
+    );
   }
 }

@@ -41,10 +41,10 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   handleDisconnect(client: Socket) {
     console.log(`[WS] Cliente desconectado: ${client.id}`);
-    
+
     // Remover jugador de todas las salas
     this.eventRooms.forEach((players, eventId) => {
-      const playerIndex = players.findIndex(p => p.socketId === client.id);
+      const playerIndex = players.findIndex((p) => p.socketId === client.id);
       if (playerIndex !== -1) {
         const player = players[playerIndex];
         players.splice(playerIndex, 1);
@@ -64,7 +64,8 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('join_event')
   handleJoinEvent(
-    @MessageBody() data: { eventId: string; playerId: string; playerName: string },
+    @MessageBody()
+    data: { eventId: string; playerId: string; playerName: string },
     @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName } = data;
@@ -78,7 +79,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
 
     const players = this.eventRooms.get(eventId);
-    const existingPlayer = players.find(p => p.playerId === playerId);
+    const existingPlayer = players.find((p) => p.playerId === playerId);
 
     if (!existingPlayer) {
       players.push({
@@ -100,7 +101,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.updateConnectedPlayers(eventId);
 
-    console.log(`[WS] Jugador ${playerName} (${playerId}) se unió al evento ${eventId}`);
+    console.log(
+      `[WS] Jugador ${playerName} (${playerId}) se unió al evento ${eventId}`,
+    );
 
     return {
       success: true,
@@ -120,7 +123,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     if (this.eventRooms.has(eventId)) {
       const players = this.eventRooms.get(eventId);
-      const playerIndex = players.findIndex(p => p.playerId === playerId);
+      const playerIndex = players.findIndex((p) => p.playerId === playerId);
 
       if (playerIndex !== -1) {
         const player = players[playerIndex];
@@ -144,7 +147,14 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('send_chat_message')
   @Throttle({ chat: { ttl: 10000, limit: 5 } })
   handleChatMessage(
-    @MessageBody() data: { eventId: string; playerId: string; playerName: string; message: string; isCoachFeedback?: boolean },
+    @MessageBody()
+    data: {
+      eventId: string;
+      playerId: string;
+      playerName: string;
+      message: string;
+      isCoachFeedback?: boolean;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, message, isCoachFeedback } = data;
@@ -169,7 +179,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('request_substitution')
   @Throttle({ chat: { ttl: 10000, limit: 3 } })
   handleSubstitutionRequest(
-    @MessageBody() data: { eventId: string; playerId: string; playerName: string; reason?: string },
+    @MessageBody()
+    data: {
+      eventId: string;
+      playerId: string;
+      playerName: string;
+      reason?: string;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, reason } = data;
@@ -182,7 +198,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       timestamp: new Date(),
     };
 
-    this.server.to(eventId).emit('event.substitution_requested', substitutionRequest);
+    this.server
+      .to(eventId)
+      .emit('event.substitution_requested', substitutionRequest);
 
     console.log(`[WS] Solicitud de cambio en evento ${eventId}: ${playerName}`);
 
@@ -192,7 +210,13 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('request_timeout')
   @Throttle({ chat: { ttl: 10000, limit: 3 } })
   handleTimeoutRequest(
-    @MessageBody() data: { eventId: string; playerId: string; playerName: string; reason?: string },
+    @MessageBody()
+    data: {
+      eventId: string;
+      playerId: string;
+      playerName: string;
+      reason?: string;
+    },
     @ConnectedSocket() client: Socket,
   ) {
     const { eventId, playerId, playerName, reason } = data;
@@ -207,7 +231,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     this.server.to(eventId).emit('event.timeout_requested', timeoutRequest);
 
-    console.log(`[WS] Solicitud de tiempo fuera en evento ${eventId}: ${playerName}`);
+    console.log(
+      `[WS] Solicitud de tiempo fuera en evento ${eventId}: ${playerName}`,
+    );
 
     return { success: true, message: 'Solicitud de tiempo fuera enviada' };
   }
@@ -232,7 +258,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.server.to(eventId).emit('event.connected_players', {
       eventId,
       connectedPlayers: players.length,
-      players: players.map(p => ({
+      players: players.map((p) => ({
         playerId: p.playerId,
         playerName: p.playerName,
         joinedAt: p.joinedAt,
@@ -248,12 +274,12 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   // Método para obtener el tiempo de conexión de un jugador
   getPlayerConnectionTime(eventId: string, playerId: string): number {
     const players = this.eventRooms.get(eventId) || [];
-    const player = players.find(p => p.playerId === playerId);
-    
+    const player = players.find((p) => p.playerId === playerId);
+
     if (player) {
       return Date.now() - player.joinedAt.getTime();
     }
-    
+
     return 0;
   }
 }

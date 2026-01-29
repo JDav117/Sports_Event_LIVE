@@ -3,6 +3,7 @@
 ## 📊 Resumen General
 
 Se identificaron **10 issues** en el proyecto:
+
 - **3 Críticos** (Severidad Alta)
 - **6 Importantes** (Severidad Media)
 - **1 Mejora** (Severidad Baja)
@@ -70,18 +71,18 @@ Se identificaron **10 issues** en el proyecto:
 
 ## 📋 Tabla Resumen
 
-| # | Título | Severidad | Tipo | Estado |
-|---|--------|-----------|------|--------|
-| 1 | Método faltante en EventsService | 🔴 Alta | Error | ⬜ |
-| 2 | Falta importación EnrollmentStatus | 🟡 Media | Dependencia | ⬜ |
-| 3 | synchronize: true en producción | 🔴 Alta | Seguridad | ⬜ |
-| 4 | Validación de fechas insuficiente | 🟡 Media | Lógica | ⬜ |
-| 5 | Filtro global no aplicado | 🟡 Media | Config | ⬜ |
-| 6 | Variables env no validadas | 🟡 Media | Config | ⬜ |
-| 7 | Sin transacciones en inscripciones | 🟡 Media | Integridad | ⬜ |
-| 8 | Falta de logs | 🟢 Baja | Observabilidad | ⬜ |
-| 9 | Datos sensibles en logs | 🔴 Alta | Seguridad | ⬜ |
-| 10 | Sin rate limiting WebSocket | 🟡 Media | Seguridad | ⬜ |
+| #   | Título                             | Severidad | Tipo           | Estado |
+| --- | ---------------------------------- | --------- | -------------- | ------ |
+| 1   | Método faltante en EventsService   | 🔴 Alta   | Error          | ⬜     |
+| 2   | Falta importación EnrollmentStatus | 🟡 Media  | Dependencia    | ⬜     |
+| 3   | synchronize: true en producción    | 🔴 Alta   | Seguridad      | ⬜     |
+| 4   | Validación de fechas insuficiente  | 🟡 Media  | Lógica         | ⬜     |
+| 5   | Filtro global no aplicado          | 🟡 Media  | Config         | ⬜     |
+| 6   | Variables env no validadas         | 🟡 Media  | Config         | ⬜     |
+| 7   | Sin transacciones en inscripciones | 🟡 Media  | Integridad     | ⬜     |
+| 8   | Falta de logs                      | 🟢 Baja   | Observabilidad | ⬜     |
+| 9   | Datos sensibles en logs            | 🔴 Alta   | Seguridad      | ⬜     |
+| 10  | Sin rate limiting WebSocket        | 🟡 Media  | Seguridad      | ⬜     |
 
 ---
 

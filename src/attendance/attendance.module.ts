@@ -8,10 +8,7 @@ import { SportContextMiddleware } from '../common/middlewares/sport-context.midd
 import { AuditMiddleware } from '../common/middlewares/audit.middleware';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Attendance]),
-    EventsModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Attendance]), EventsModule],
   controllers: [AttendanceController],
   providers: [AttendanceService, AuditMiddleware],
   exports: [AttendanceService],

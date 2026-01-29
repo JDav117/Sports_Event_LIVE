@@ -25,7 +25,9 @@ export class SportContextMiddleware implements NestMiddleware {
     req.currentTeamId = teamIdFromParams || teamIdFromHeader;
     req.currentEventId = eventIdFromParams || eventIdFromHeader;
 
-    console.log(`[SportContext] TeamId: ${req.currentTeamId}, EventId: ${req.currentEventId}`);
+    console.log(
+      `[SportContext] TeamId: ${req.currentTeamId}, EventId: ${req.currentEventId}`,
+    );
 
     next();
   }

@@ -20,22 +20,46 @@ export class PlayerEnrollmentController {
   constructor(private readonly enrollmentService: PlayerEnrollmentService) {}
 
   @Post()
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Inscribir un jugador a un equipo y/o evento',
-    description: 'Valida maxPlayers del equipo y maxAttendees del evento'
+    description: 'Valida maxPlayers del equipo y maxAttendees del evento',
   })
-  @ApiResponse({ status: 201, description: 'Inscripción creada', type: PlayerEnrollment })
-  @ApiResponse({ status: 400, description: 'Límite de jugadores alcanzado o ya inscrito' })
+  @ApiResponse({
+    status: 201,
+    description: 'Inscripción creada',
+    type: PlayerEnrollment,
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Límite de jugadores alcanzado o ya inscrito',
+  })
   create(@Body() createEnrollmentDto: CreateEnrollmentDto) {
     return this.enrollmentService.create(createEnrollmentDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Obtener todas las inscripciones con filtros' })
-  @ApiQuery({ name: 'playerId', required: false, description: 'Filtrar por jugador' })
-  @ApiQuery({ name: 'teamId', required: false, description: 'Filtrar por equipo' })
-  @ApiQuery({ name: 'eventId', required: false, description: 'Filtrar por evento' })
-  @ApiQuery({ name: 'status', required: false, enum: EnrollmentStatus, description: 'Filtrar por estado' })
+  @ApiQuery({
+    name: 'playerId',
+    required: false,
+    description: 'Filtrar por jugador',
+  })
+  @ApiQuery({
+    name: 'teamId',
+    required: false,
+    description: 'Filtrar por equipo',
+  })
+  @ApiQuery({
+    name: 'eventId',
+    required: false,
+    description: 'Filtrar por evento',
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    enum: EnrollmentStatus,
+    description: 'Filtrar por estado',
+  })
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
   @ApiResponse({ status: 200, description: 'Lista de inscripciones' })
@@ -47,25 +71,43 @@ export class PlayerEnrollmentController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.enrollmentService.findAll({ playerId, teamId, eventId, status, page, limit });
+    return this.enrollmentService.findAll({
+      playerId,
+      teamId,
+      eventId,
+      status,
+      page,
+      limit,
+    });
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una inscripción por ID' })
-  @ApiResponse({ status: 200, description: 'Inscripción encontrada', type: PlayerEnrollment })
+  @ApiResponse({
+    status: 200,
+    description: 'Inscripción encontrada',
+    type: PlayerEnrollment,
+  })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
   findOne(@Param('id') id: string) {
     return this.enrollmentService.findOne(id);
   }
 
   @Patch(':id/status')
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Actualizar estado de inscripción (aprobar/rechazar)',
-    description: 'Solo el coach puede aprobar o rechazar inscripciones'
+    description: 'Solo el coach puede aprobar o rechazar inscripciones',
   })
-  @ApiResponse({ status: 200, description: 'Estado actualizado', type: PlayerEnrollment })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado actualizado',
+    type: PlayerEnrollment,
+  })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
-  updateStatus(@Param('id') id: string, @Body() updateStatusDto: UpdateEnrollmentStatusDto) {
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateEnrollmentStatusDto,
+  ) {
     return this.enrollmentService.updateStatus(id, updateStatusDto);
   }
 

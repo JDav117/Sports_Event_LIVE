@@ -8,7 +8,7 @@ export class ResourceNotFoundException extends HttpException {
     const message = identifier
       ? `${resourceName} con ID "${identifier}" no encontrado`
       : `${resourceName} no encontrado`;
-    
+
     super(
       {
         statusCode: HttpStatus.NOT_FOUND,
@@ -45,7 +45,7 @@ export class DuplicateResourceException extends HttpException {
     const message = field
       ? `Ya existe un ${resourceName} con ese ${field}`
       : `El ${resourceName} ya existe`;
-    
+
     super(
       {
         statusCode: HttpStatus.CONFLICT,
@@ -79,10 +79,11 @@ export class OperationNotAllowedException extends HttpException {
  */
 export class LimitExceededException extends HttpException {
   constructor(resourceName: string, limit: number, current?: number) {
-    const message = current !== undefined
-      ? `Límite de ${resourceName} excedido: ${current}/${limit}`
-      : `Límite máximo de ${resourceName} alcanzado (${limit})`;
-    
+    const message =
+      current !== undefined
+        ? `Límite de ${resourceName} excedido: ${current}/${limit}`
+        : `Límite máximo de ${resourceName} alcanzado (${limit})`;
+
     super(
       {
         statusCode: HttpStatus.BAD_REQUEST,
@@ -116,11 +117,15 @@ export class InvalidDataException extends HttpException {
  * Excepción para estados inválidos
  */
 export class InvalidStateException extends HttpException {
-  constructor(resourceName: string, currentState: string, requiredState?: string) {
+  constructor(
+    resourceName: string,
+    currentState: string,
+    requiredState?: string,
+  ) {
     const message = requiredState
       ? `${resourceName} está en estado "${currentState}", se requiere estado "${requiredState}"`
       : `Estado inválido "${currentState}" para ${resourceName}`;
-    
+
     super(
       {
         statusCode: HttpStatus.CONFLICT,

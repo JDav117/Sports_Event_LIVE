@@ -1,4 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Team } from '../teams/team.entity';
 import { PlayerEnrollment } from '../player-enrollment/player-enrollment.entity';
 import { Attendance } from '../attendance/attendance.entity';
@@ -53,7 +62,7 @@ export class Event {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @ManyToOne(() => Team, team => team.events)
+  @ManyToOne(() => Team, (team) => team.events)
   @JoinColumn({ name: 'teamId' })
   team: Team;
 
@@ -66,9 +75,9 @@ export class Event {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  @OneToMany(() => PlayerEnrollment, enrollment => enrollment.event)
+  @OneToMany(() => PlayerEnrollment, (enrollment) => enrollment.event)
   enrollments: PlayerEnrollment[];
 
-  @OneToMany(() => Attendance, attendance => attendance.event)
+  @OneToMany(() => Attendance, (attendance) => attendance.event)
   attendances: Attendance[];
 }

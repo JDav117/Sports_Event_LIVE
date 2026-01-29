@@ -46,7 +46,7 @@ SELECT * FROM events;
 ### Ver eventos con sus equipos
 
 ```sql
-SELECT 
+SELECT
     e.id,
     e.name AS event_name,
     e.startTime,
@@ -77,11 +77,11 @@ SELECT * FROM events WHERE status = 'finished';
 
 ```sql
 -- Eventos de hoy en adelante
-SELECT * FROM events 
+SELECT * FROM events
 WHERE startTime >= NOW();
 
 -- Eventos del mes actual
-SELECT * FROM events 
+SELECT * FROM events
 WHERE DATE_FORMAT(startTime, '%Y-%m') = DATE_FORMAT(NOW(), '%Y-%m');
 ```
 
@@ -94,7 +94,7 @@ SELECT * FROM player_enrollments;
 ### Ver inscripciones con detalles de equipo y evento
 
 ```sql
-SELECT 
+SELECT
     pe.id,
     pe.playerId,
     pe.playerName,
@@ -112,7 +112,7 @@ LEFT JOIN events e ON pe.eventId = e.id;
 ### Ver inscripciones aprobadas por equipo
 
 ```sql
-SELECT 
+SELECT
     t.name AS team_name,
     t.maxPlayers,
     COUNT(pe.id) AS enrolled_players
@@ -130,7 +130,7 @@ SELECT * FROM attendances;
 ### Ver asistencia con detalles del evento
 
 ```sql
-SELECT 
+SELECT
     a.playerId,
     a.playerName,
     a.wasPresent,
@@ -146,7 +146,7 @@ LEFT JOIN events e ON a.eventId = e.id;
 ### Estadísticas de asistencia por evento
 
 ```sql
-SELECT 
+SELECT
     e.name AS event_name,
     e.type,
     e.status,
@@ -331,17 +331,17 @@ VALUES (
 
 ```sql
 -- Iniciar evento (cambiar a live)
-UPDATE events 
+UPDATE events
 SET status = 'live', updatedAt = NOW()
 WHERE id = 'EVENT_ID_AQUI';
 
 -- Finalizar evento
-UPDATE events 
+UPDATE events
 SET status = 'finished', updatedAt = NOW()
 WHERE id = 'EVENT_ID_AQUI';
 
 -- Cancelar evento
-UPDATE events 
+UPDATE events
 SET status = 'cancelled', updatedAt = NOW()
 WHERE id = 'EVENT_ID_AQUI';
 ```
@@ -350,12 +350,12 @@ WHERE id = 'EVENT_ID_AQUI';
 
 ```sql
 -- Aprobar inscripción
-UPDATE player_enrollments 
+UPDATE player_enrollments
 SET status = 'approved', updatedAt = NOW()
 WHERE id = 'ENROLLMENT_ID_AQUI';
 
 -- Rechazar inscripción
-UPDATE player_enrollments 
+UPDATE player_enrollments
 SET status = 'rejected', updatedAt = NOW()
 WHERE id = 'ENROLLMENT_ID_AQUI';
 ```
@@ -363,8 +363,8 @@ WHERE id = 'ENROLLMENT_ID_AQUI';
 ### Actualizar información de equipo
 
 ```sql
-UPDATE teams 
-SET 
+UPDATE teams
+SET
     name = 'Tigres FC 2025',
     maxPlayers = 30,
     updatedAt = datetime('now')
@@ -401,7 +401,7 @@ DELETE FROM teams WHERE id = 'TEAM_ID_AQUI';
 ### Reporte de equipos con más inscripciones
 
 ```sql
-SELECT 
+SELECT
     t.name AS team_name,
     t.coach,
     t.maxPlayers,
@@ -418,7 +418,7 @@ ORDER BY total_inscripciones DESC;
 ### Reporte de eventos próximos con inscripciones
 
 ```sql
-SELECT 
+SELECT
     e.name AS event_name,
     e.type,
     e.startTime,
@@ -430,7 +430,7 @@ SELECT
 FROM events e
 LEFT JOIN teams t ON e.teamId = t.id
 LEFT JOIN player_enrollments pe ON e.id = pe.eventId AND pe.status = 'approved'
-WHERE e.status = 'scheduled' 
+WHERE e.status = 'scheduled'
   AND datetime(e.startTime) >= datetime('now')
 GROUP BY e.id
 ORDER BY e.startTime ASC;
@@ -439,7 +439,7 @@ ORDER BY e.startTime ASC;
 ### Jugadores más participativos
 
 ```sql
-SELECT 
+SELECT
     a.playerId,
     a.playerName,
     COUNT(DISTINCT a.eventId) AS eventos_asistidos,
@@ -455,7 +455,7 @@ ORDER BY total_participaciones DESC;
 ### Tasa de asistencia por jugador
 
 ```sql
-SELECT 
+SELECT
     a.playerId,
     a.playerName,
     COUNT(*) AS eventos_registrados,
@@ -472,7 +472,7 @@ ORDER BY tasa_asistencia_porcentaje DESC;
 ### Eventos con mejor asistencia
 
 ```sql
-SELECT 
+SELECT
     e.name AS event_name,
     e.type,
     e.startTime,
@@ -494,7 +494,7 @@ ORDER BY tasa_asistencia DESC;
 ### Resumen por tipo de deporte
 
 ```sql
-SELECT 
+SELECT
     t.sportType,
     COUNT(DISTINCT t.id) AS total_equipos,
     SUM(t.maxPlayers) AS capacidad_total,
@@ -576,6 +576,7 @@ exit;
 ### Opción 2: Extensión de VS Code
 
 Instalar la extensión **MySQL** en VS Code:
+
 1. Abrir VS Code
 2. Ir a Extensions (Ctrl+Shift+X)
 3. Buscar "MySQL" (de Weijan Chen)
@@ -736,7 +737,7 @@ VALUES (
 
 -- Jugadores del equipo Tigres FC
 INSERT INTO player_enrollments (id, playerId, playerName, playerEmail, enrollmentType, status, teamId, eventId, notes, createdAt, updatedAt)
-VALUES 
+VALUES
     ('e1111111-1111-1111-1111-111111111111', 'player-001', 'Carlos Martínez', 'carlos@example.com', 'both', 'approved', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Capitán del equipo', datetime('now', '-10 days'), datetime('now', '-10 days')),
     ('e2222222-2222-2222-2222-222222222222', 'player-002', 'Luis Rodríguez', 'luis@example.com', 'both', 'approved', '11111111-1111-1111-1111-111111111111', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Delantero', datetime('now', '-9 days'), datetime('now', '-9 days')),
     ('e3333333-3333-3333-3333-333333333333', 'player-003', 'Pedro Sánchez', 'pedro@example.com', 'team', 'approved', '11111111-1111-1111-1111-111111111111', NULL, 'Defensa', datetime('now', '-8 days'), datetime('now', '-8 days')),
@@ -744,13 +745,13 @@ VALUES
 
 -- Jugadores del equipo Leones Basketball
 INSERT INTO player_enrollments (id, playerId, playerName, playerEmail, enrollmentType, status, teamId, eventId, notes, createdAt, updatedAt)
-VALUES 
+VALUES
     ('e5555555-5555-5555-5555-555555555555', 'player-005', 'Ana Silva', 'ana@example.com', 'both', 'approved', '22222222-2222-2222-2222-222222222222', 'cccccccc-cccc-cccc-cccc-cccccccccccc', 'Base', datetime('now', '-7 days'), datetime('now', '-7 days')),
     ('e6666666-6666-6666-6666-666666666666', 'player-006', 'Roberto Méndez', 'roberto@example.com', 'team', 'approved', '22222222-2222-2222-2222-222222222222', NULL, 'Alero', datetime('now', '-6 days'), datetime('now', '-6 days'));
 
 -- Jugadoras del equipo Panteras Volleyball
 INSERT INTO player_enrollments (id, playerId, playerName, playerEmail, enrollmentType, status, teamId, eventId, notes, createdAt, updatedAt)
-VALUES 
+VALUES
     ('e7777777-7777-7777-7777-777777777777', 'player-007', 'Laura Fernández', 'laura@example.com', 'both', 'approved', '33333333-3333-3333-3333-333333333333', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 'Rematadora', datetime('now', '-15 days'), datetime('now', '-15 days')),
     ('e8888888-8888-8888-8888-888888888888', 'player-008', 'Sofía Ramírez', 'sofia@example.com', 'both', 'approved', '33333333-3333-3333-3333-333333333333', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 'Líbero', datetime('now', '-14 days'), datetime('now', '-14 days'));
 
@@ -760,13 +761,13 @@ VALUES
 
 -- Asistencia del evento en vivo (Partido vs Águilas)
 INSERT INTO attendances (id, playerId, playerName, eventId, wasPresent, minutesConnected, participationCount, participations, recordedAt)
-VALUES 
+VALUES
     ('a1111111-1111-1111-1111-111111111111', 'player-001', 'Carlos Martínez', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1, 45, 5, '[{"type":"chat_message","content":"¡Vamos equipo!","timestamp":"2025-12-03T10:30:00Z"},{"type":"tactical_feedback","content":"Presión alta en defensa","timestamp":"2025-12-03T10:45:00Z"},{"type":"chat_message","content":"Buen juego","timestamp":"2025-12-03T11:00:00Z"}]', datetime('now')),
     ('a2222222-2222-2222-2222-222222222222', 'player-002', 'Luis Rodríguez', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 1, 42, 3, '[{"type":"chat_message","content":"Listos!","timestamp":"2025-12-03T10:32:00Z"},{"type":"substitution_request","content":"Necesito descanso","timestamp":"2025-12-03T11:10:00Z"}]', datetime('now'));
 
 -- Asistencia del evento finalizado (Torneo Panteras)
 INSERT INTO attendances (id, playerId, playerName, eventId, wasPresent, minutesConnected, participationCount, participations, recordedAt)
-VALUES 
+VALUES
     ('a3333333-3333-3333-3333-333333333333', 'player-007', 'Laura Fernández', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 1, 180, 12, '[{"type":"chat_message","content":"Excelente trabajo equipo","timestamp":"2025-11-28T10:00:00Z"},{"type":"tactical_feedback","content":"Rotación perfecta","timestamp":"2025-11-28T11:00:00Z"}]', datetime('now', '-5 days')),
     ('a4444444-4444-4444-4444-444444444444', 'player-008', 'Sofía Ramírez', 'dddddddd-dddd-dddd-dddd-dddddddddddd', 1, 175, 8, '[{"type":"chat_message","content":"¡A ganar!","timestamp":"2025-11-28T10:05:00Z"},{"type":"timeout_request","content":"Tomar agua","timestamp":"2025-11-28T12:00:00Z"}]', datetime('now', '-5 days'));
 

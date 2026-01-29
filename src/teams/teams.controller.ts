@@ -23,20 +23,52 @@ export class TeamsController {
 
   @Post()
   @ApiOperation({ summary: 'Crear un nuevo equipo' })
-  @ApiResponse({ status: 201, description: 'Equipo creado exitosamente', type: Team })
+  @ApiResponse({
+    status: 201,
+    description: 'Equipo creado exitosamente',
+    type: Team,
+  })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
   create(@Body() createTeamDto: CreateTeamDto) {
     return this.teamsService.create(createTeamDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Obtener todos los equipos con filtros y paginación' })
-  @ApiQuery({ name: 'coach', required: false, description: 'Filtrar por entrenador' })
-  @ApiQuery({ name: 'sportType', required: false, description: 'Filtrar por tipo de deporte' })
-  @ApiQuery({ name: 'category', required: false, description: 'Filtrar por categoría' })
-  @ApiQuery({ name: 'tags', required: false, description: 'Filtrar por etiquetas' })
-  @ApiQuery({ name: 'page', required: false, type: Number, description: 'Número de página' })
-  @ApiQuery({ name: 'limit', required: false, type: Number, description: 'Elementos por página' })
+  @ApiOperation({
+    summary: 'Obtener todos los equipos con filtros y paginación',
+  })
+  @ApiQuery({
+    name: 'coach',
+    required: false,
+    description: 'Filtrar por entrenador',
+  })
+  @ApiQuery({
+    name: 'sportType',
+    required: false,
+    description: 'Filtrar por tipo de deporte',
+  })
+  @ApiQuery({
+    name: 'category',
+    required: false,
+    description: 'Filtrar por categoría',
+  })
+  @ApiQuery({
+    name: 'tags',
+    required: false,
+    description: 'Filtrar por etiquetas',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Número de página',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Elementos por página',
+  })
   @ApiResponse({ status: 200, description: 'Lista de equipos' })
   findAll(
     @Query('coach') coach?: string,
@@ -46,7 +78,14 @@ export class TeamsController {
     @Query('page') page?: number,
     @Query('limit') limit?: number,
   ) {
-    return this.teamsService.findAll({ coach, sportType, category, tags, page, limit });
+    return this.teamsService.findAll({
+      coach,
+      sportType,
+      category,
+      tags,
+      page,
+      limit,
+    });
   }
 
   @Get(':id')

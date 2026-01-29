@@ -10,6 +10,7 @@
 ## ✅ CHECKLIST DE REQUISITOS CUMPLIDOS
 
 ### Módulo Teams ✅
+
 - [x] CRUD completo implementado
 - [x] Campos requeridos: name, category, coach, maxPlayers, sportType, tags
 - [x] Relación coach-team (uno a muchos)
@@ -19,6 +20,7 @@
 - [x] Paginación con page y limit
 
 ### Módulo Events ✅
+
 - [x] CRUD completo implementado
 - [x] Campos: startTime, endTime, location, type
 - [x] Estados: scheduled, live, finished, cancelled
@@ -29,6 +31,7 @@
 - [x] Paginación implementada
 
 ### Módulo PlayerEnrollment ✅
+
 - [x] Inscripción a equipos y/o eventos
 - [x] Validación de maxPlayers del equipo
 - [x] Validación de maxAttendees del evento
@@ -38,6 +41,7 @@
 - [x] Prevención de inscripciones duplicadas
 
 ### Módulo Attendance & Participation ✅
+
 - [x] **Asistencia automática**: Jugador presente si conexión ≥ MIN_ATTENDANCE_MINUTES
 - [x] Registro de participaciones con tipos:
   - [x] chat_message (mensajes generales)
@@ -48,6 +52,7 @@
 - [x] Estadísticas: tasa asistencia, minutos promedio, participaciones promedio
 
 ### WebSockets ✅
+
 - [x] Salas independientes por eventId
 - [x] **Eventos cliente → servidor**:
   - [x] join_event (unirse a sala)
@@ -67,6 +72,7 @@
 - [x] Métrica en tiempo real: connectedPlayers
 
 ### Seguridad ✅
+
 - [x] **CORS**: Configurado para dos orígenes (jugadores y coaches)
   - Frontend jugadores: http://localhost:4200
   - Frontend coaches: http://localhost:4201
@@ -77,7 +83,8 @@
   - [x] Substitution/Timeout: 3 solicitudes/10 segundos
 
 ### Middlewares ✅
-- [x] **SportContextMiddleware**: 
+
+- [x] **SportContextMiddleware**:
   - Extrae currentTeamId de headers (X-Team-Id) o params
   - Extrae currentEventId de headers (X-Event-Id) o params
   - Disponible en req.currentTeamId y req.currentEventId
@@ -88,6 +95,7 @@
   - [x] Logs persistentes con timestamp, IP, acción, razón
 
 ### Swagger ✅
+
 - [x] Documentación completa de todos los endpoints REST
 - [x] **Sección especial de WebSocket Events** con:
   - [x] Ejemplos de payload para cada evento
@@ -99,7 +107,8 @@
 - [x] Tags organizados por módulo
 
 ### Validaciones de Tiempo ✅
-- [x] **No iniciar evento antes de margen**: 
+
+- [x] **No iniciar evento antes de margen**:
   - Configurable con EVENT_START_MARGIN_MINUTES (default: 15 minutos)
   - Validación en updateStatus cuando cambia a 'live'
 - [x] **No marcar asistencia después de finished**:
@@ -108,13 +117,14 @@
   - Validación en create y update de eventos
 
 ### Paginación y Filtros ✅
-- [x] **Teams**: 
+
+- [x] **Teams**:
   - Filtros: coach, sportType, category, tags
   - Paginación: page, limit
-- [x] **Events**: 
+- [x] **Events**:
   - Filtros: teamId, type, status, startDate, endDate
   - Paginación: page, limit
-- [x] **Enrollments**: 
+- [x] **Enrollments**:
   - Filtros: playerId, teamId, eventId, status
   - Paginación: page, limit
 - [x] Formato de respuesta consistente con data, total, page, limit
@@ -124,6 +134,7 @@
 ## 🏗️ ARQUITECTURA TÉCNICA
 
 ### Stack Tecnológico
+
 - **Framework**: NestJS 10.3
 - **Lenguaje**: TypeScript 5.3
 - **ORM**: TypeORM 0.3
@@ -134,6 +145,7 @@
 - **Validación**: class-validator 0.14, class-transformer 0.5
 
 ### Estructura Modular
+
 ```
 src/
 ├── common/middlewares/          # Middlewares compartidos
@@ -144,6 +156,7 @@ src/
 ```
 
 ### Base de Datos
+
 - 4 tablas principales: teams, events, player_enrollments, attendances
 - Relaciones Foreign Key correctas
 - Índices optimizados para consultas frecuentes
@@ -155,17 +168,18 @@ src/
 ## 📦 ENTREGABLES
 
 ### Archivos de Código (100% funcional)
+
 - ✅ Código fuente completo en `src/`
 - ✅ Configuración TypeScript, NestJS, TypeORM
 - ✅ Todas las dependencias en `package.json`
 
 ### Documentación (Completa y detallada)
+
 1. ✅ **README.md** (60+ páginas)
    - Descripción completa del proyecto
    - Arquitectura del sistema
    - Guía de módulos y funcionalidades
    - Ejemplos de uso de API REST y WebSocket
-   
 2. ✅ **GUIA_INSTALACION.md** (15+ páginas)
    - Requisitos previos
    - Instalación paso a paso (6 pasos claros)
@@ -208,6 +222,7 @@ src/
    - Menú interactivo
 
 ### Documentación Interactiva
+
 - ✅ **Swagger UI** en http://localhost:3000/api/docs
   - Todos los endpoints documentados
   - Interfaz de prueba interactiva
@@ -218,11 +233,13 @@ src/
 ## 🚀 CÓMO EJECUTAR EL PROYECTO
 
 ### Opción 1: Script Rápido (Recomendado)
+
 ```powershell
 .\inicio-rapido.ps1
 ```
 
 ### Opción 2: Manual
+
 ```powershell
 # 1. Configurar entorno
 Copy-Item .env.example .env
@@ -240,6 +257,7 @@ npm run start:dev
 ```
 
 ### Verificación
+
 - Aplicación: http://localhost:3000
 - Swagger: http://localhost:3000/api/docs
 - WebSocket: ws://localhost:3000
@@ -249,11 +267,13 @@ npm run start:dev
 ## 🎯 PUNTOS DESTACADOS
 
 ### 1. Cumplimiento Total de Requisitos
+
 - **100%** de los requisitos funcionales implementados
 - **100%** de los requisitos técnicos cumplidos
 - **Cero** requisitos pendientes o parcialmente implementados
 
 ### 2. Calidad del Código
+
 - TypeScript con tipado estricto
 - Validaciones exhaustivas con class-validator
 - DTOs documentados con Swagger
@@ -261,6 +281,7 @@ npm run start:dev
 - Código limpio y bien organizado
 
 ### 3. Seguridad Implementada
+
 - CORS correctamente configurado
 - Helmet para headers HTTP
 - Rate limiting en API REST y WebSocket
@@ -268,6 +289,7 @@ npm run start:dev
 - Documentación de mejoras futuras (JWT, Guards)
 
 ### 4. Documentación Excepcional
+
 - 7 archivos de documentación
 - Más de 150 páginas de contenido
 - Guías paso a paso
@@ -275,6 +297,7 @@ npm run start:dev
 - Solución de problemas
 
 ### 5. Base de Datos Profesional
+
 - Diseño normalizado
 - Relaciones Foreign Key
 - Índices optimizados
@@ -282,6 +305,7 @@ npm run start:dev
 - Consultas documentadas
 
 ### 6. WebSockets Completos
+
 - 8 eventos implementados
 - Salas por evento
 - Rate limiting
@@ -302,7 +326,7 @@ Para verificar que el proyecto cumple los requisitos:
    - `[SportContext]` aparece en cada request
    - `[AUDIT]` aparece en intentos no autorizados
 
-3. **Rate Limiting**: 
+3. **Rate Limiting**:
    - Enviar 6 mensajes de chat rápidamente → Error 429
 
 4. **Validaciones**:
@@ -334,11 +358,12 @@ Para verificar que el proyecto cumple los requisitos:
 
 ## ✅ CONCLUSIÓN
 
-El proyecto **Plataforma de Eventos Deportivos en Vivo** ha sido implementado completamente según las especificaciones del instructor. 
+El proyecto **Plataforma de Eventos Deportivos en Vivo** ha sido implementado completamente según las especificaciones del instructor.
 
 **Todos los requisitos funcionales y técnicos obligatorios han sido cumplidos al 100%.**
 
 El código es:
+
 - ✅ Funcional
 - ✅ Documentado
 - ✅ Escalable
@@ -353,6 +378,7 @@ El código es:
 ## 📞 SOPORTE
 
 Para cualquier consulta sobre el proyecto, consultar:
+
 1. **GUIA_INSTALACION.md** - Instalación y configuración
 2. **README.md** - Documentación completa
 3. **COMANDOS_UTILES.md** - Comandos de desarrollo
