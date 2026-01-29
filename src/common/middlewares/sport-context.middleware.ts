@@ -2,9 +2,11 @@ import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 
 declare global {
-  interface Request {
-    currentTeamId?: string;
-    currentEventId?: string;
+  namespace Express {
+    interface Request {
+      currentTeamId?: string;
+      currentEventId?: string;
+    }
   }
 }
 
