@@ -1,17 +1,79 @@
-name: CI - Sports Events Platform
+name: CI & CD - Sports Events Platform
 
 on:
   push:
     branches:
       - main
+      - develop
     paths:
       - 'src/**'
+      - 'test/**'
       - 'package.json'
       - 'tsconfig.json'
       - '.github/workflows/CI.yml'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: "CI-CD-${{ github.ref }}"
+  cancel-in-progress: true
 
 jobs:
-  test:
+  # Job de verificación básica
+  verificar_entorno:
+    name: Verificar Entorno y Dependencias
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Mostrar información del sistema
+        run: |
+          echo "📅 Fecha: $(date)"
+          echo "🖥️  Sistema Operativo: $(uname -a)"
+          echo "📂 Directorio de trabajo: $(pwd)"
+
+      - name: Verificar estructura del proyecto
+        run: |
+          echo "📋 Verificando archivos principales..."
+          if [ -f "package.json" ]; then
+            echo "✅ package.json encontrado"
+          else
+            echo "❌ package.json no encontrado"
+            exit 1
+          fi
+          
+          if [ -f "nest-cli.json" ]; then
+            echo "✅ nest-cli.json encontrado"
+          else
+            echo "❌ nest-cli.json no encontrado"
+            exit 1
+          fi
+          
+          if [ -d "src" ]; then
+            echo "✅ Directorio src/ encontrado"
+          else
+            echo "❌ Directorio src/ no encontrado"
+            exit 1
+          fi
+
+      - name: Mostrar archivos del proyecto
+        run: ls -la
+
+      - name: Mostrar versión de Node.js
+        run: node --version
+
+      - name: Mostrar versión de npm
+        run: npm --version
+
+  # Job principal de CI
+  build_and_test:
+    name: Build, Lint y Tests
+    needs: verificar_entorno
     runs-on: ubuntu-latest
 
     services:
@@ -34,22 +96,22 @@ jobs:
       - name: Checkout del código
         uses: actions/checkout@v4
 
-      - name: Configurar Node.js
+      - name: Configurar Node.js 18
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
 
       - name: Instalar dependencias
-        run: npm install
+        run: npm ci
 
-      - name: Ejecutar análisis de código (Linting y formato)
+      - name: Compilar proyecto
+        run: npm run build
+
+      - name: Ejecutar análisis de código (Linting)
         run: npm run lint
 
-      - name: Ejecutar análisis de código (Unused imports/code)
-        run: npm run lint -- --fix --report-unused-disable-directives
-
-      - name: Ejecutar pruebas unitarias
+      - name: Ejecutar pruebas unitarias con cobertura
         run: npm run test:cov
 
       - name: Ejecutar pruebas E2E
@@ -60,3 +122,60 @@ jobs:
           DB_PASSWORD: testpass123
           DB_DATABASE: sports_events_test
         run: npm run test:e2e -- --forceExit
+
+      - name: Subir reporte de cobertura
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Resumen de resultados
+        if: success()
+        run: |
+          echo "✅ ¡CI Completado Exitosamente!"
+          echo "📊 Build: OK"
+          echo "🔍 Linting: OK"
+          echo "🧪 Tests: OK"
+
+  # Job de análisis de seguridad (opcional)
+  security_audit:
+    name: Auditoría de Seguridad
+    needs: verificar_entorno
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Auditoría de dependencias
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+
+  # Job de notificación final
+  notificar_resultado:
+    name: Notificación de Resultado
+    needs: [build_and_test, security_audit]
+    if: always()
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Estado del CI/CD
+        run: |
+          if [ "${{ needs.build_and_test.result }}" == "success" ]; then
+            echo "🎉 ¡Pipeline de CI/CD completado con éxito!"
+            echo "✅ Todos los tests pasaron"
+            echo "✅ Build completado"
+            echo "✅ Linting pasado"
+          else
+            echo "❌ El pipeline de CI/CD falló"
+            echo "Por favor, revisa los logs anteriores"
+            exit 1
+          fi
