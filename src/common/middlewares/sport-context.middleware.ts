@@ -1,6 +1,6 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
-import '@common/types/express';
+import '../types/express';
 
 @Injectable()
 export class SportContextMiddleware implements NestMiddleware {
